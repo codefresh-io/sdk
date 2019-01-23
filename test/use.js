@@ -4,12 +4,12 @@ const swaggerSpec = require('./swagger');
 const pipSpec = require('./pip-spec');
 
 async function use() {
-  const codefresh = Codefresh({
+  const codefresh = Codefresh();
+  codefresh.configure({
     url: 'http://local.codefresh.io',
     spec: swaggerSpec,
     apiKey: process.env.CF_API_KEY
   });
-
   // client operations
   const pip = await codefresh.pipelines.create({}, {requestBody: pipSpec});
   console.log('pipeline created:', pip);
