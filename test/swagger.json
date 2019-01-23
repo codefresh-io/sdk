@@ -1,0 +1,173 @@
+{
+  "openapi": "3.0",
+  "info": {
+    "version": "0.0.1",
+    "title": "Codefresh API",
+    "description": "Codefresh api swagger-3.0 specification",
+    "termsOfService": "http://www.codefresh.io",
+    "contact": {
+      "name": "Codefresh api team",
+      "url": "http://www.codefresh.io"
+    }
+  },
+  "servers": [
+    {
+      "url": "{protocol}://{host}/{apiBase}",
+      "variables": {
+        "apiBase": {
+          "default": "api"
+        },
+        "protocol": {
+          "default": "http",
+          "enum": [
+            "http",
+            "https"
+          ]
+        },
+        "host": {
+          "default": "local.codefresh.io"
+        }
+      }
+    }
+  ],
+  "security": [
+    {
+      "internalApiKey": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "internalApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization"
+      }
+    }
+  },
+  "paths": {
+    "/pipelines": {
+      "get": {
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "getAll",
+        "security": [
+          {
+            "internalApiKey": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "create",
+        "security": [
+          {
+            "internalApiKey": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    },
+    "/pipelines/{name}": {
+      "get": {
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "getByName",
+        "security": [
+          {
+            "internalApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name of pipeline",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "replaceByName",
+        "security": [
+          {
+            "internalApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name of pipeline",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "pipelines"
+        ],
+        "operationId": "delete",
+        "security": [
+          {
+            "internalApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Name of pipeline",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    }
+  }
+}

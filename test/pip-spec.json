@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "kind": "pipeline",
+  "metadata": {
+    "name": "test7"
+  },
+  "spec": {
+    "steps": {
+      "eslint": {
+        "title": "Running linting logic",
+        "image": "codefresh/node-tester-image:8.8.0",
+        "commands": [
+          "yarn eslint"
+        ]
+      }
+    },
+    "triggers": []
+  }
+}
