@@ -1,6 +1,6 @@
 # Codefresh-sdk
 
-Codefresh SDK that is build on openapi spec.
+Codefresh SDK built on openapi spec.
 
 ## Install
 For now it's local only:
@@ -47,8 +47,8 @@ Every sdk operation is built corresponding openapi spec:
 For example, getting pipelines can be made in such way:
 
 ```ecmascript 6
-const pipelines = sdk.pipelines.getAll();
-const pip = sdk.pipelines.get({ name: 'some-pip' });
+const pipelines = sdk.pipelines.getAll(/* some filter params may be here */);
+const pip = sdk.pipelines.get({ name: 'some-pip' }); // get one by name
 ```
 
 Creating pipeline:
@@ -71,5 +71,5 @@ const data = {
     }
 }
 
-sdk.pipelines.create({}, {requestBody: data});
+sdk.pipelines.create({/* no params here */}, {requestBody: data});
 ```
