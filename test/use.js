@@ -6,7 +6,7 @@ const pipSpec = require('./pip-spec');
 async function use() {
   const codefresh = Codefresh();
   codefresh.configure({
-    url: 'http://local.codefresh.io',
+    url: 'http://asdf',
     spec: swaggerSpec,
     apiKey: process.env.CF_API_KEY
   });

@@ -2,7 +2,7 @@
   "version": "1.0",
   "kind": "pipeline",
   "metadata": {
-    "name": "test7"
+    "name": "test11"
   },
   "spec": {
     "steps": {

@@ -5,8 +5,11 @@
   "main": "index.js",
   "scripts": {},
   "dependencies": {
+    "cf-errors": "^0.1.11",
     "lodash": "^4.17.11",
     "recursive-readdir": "^2.2.2",
+    "request": "^2.88.0",
+    "requestretry": "^3.1.0",
     "swagger-client": "^3.8.22"
   }
 }
