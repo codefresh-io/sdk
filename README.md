@@ -63,13 +63,37 @@ const data = {
     spec: {
         steps: {
             eslint: {
-             title: "Running linting logic",
-             image: "codefresh/node-tester-image:8.8.0",
-             commands: ["yarn eslint"]
+                title: "Running linting logic",
+                image: "codefresh/node-tester-image:8.8.0",
+                commands: ["yarn eslint"]
             }
         }
     }
 }
 
-sdk.pipelines.create({/* no params here */}, {requestBody: data});
+sdk.pipelines.create(data);
+```
+
+Updating pipeline:
+
+```ecmascript 6
+const data = { /* same data */ }
+sdk.pipelines.update({name: 'some-pip'}, data);
+```
+Running pipeline:
+
+```ecmascript 6
+const data = {
+    branch: 'master',
+    sha: '192993440506679',
+    variables: {
+        SOME_VAR: 'some-var'
+    },
+    options: {
+        noCache: true,
+        resetVolume: true
+    }
+}
+
+sdk.pipelines.run({name: 'some-pip'}, data);
 ```

@@ -1,18 +1,3 @@
-const propertyCollector = (handler) => {
-  const path = [];
-  return new Proxy(handler, {
-    get(target, p, receiver) {
-      path.push(p);
-      return receiver;
-    },
-    apply(target, thisArg, argArray) {
-      const result = target(path.join('.'), argArray);
-      path.length = 0;
-      return result;
-    }
-  });
-};
-
 const resourceProxy = (clientHandler, logicHandler, resourceName) => {
   const methods = {};
   return new Proxy({}, {
@@ -41,7 +26,6 @@ const methodProxy = (handler, path) => {
 };
 
 module.exports = {
-  propertyCollector,
   resourceProxy,
   methodProxy,
 };

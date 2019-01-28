@@ -12,7 +12,7 @@ async function use() {
   });
 
   // client operations
-  const pip = await codefresh.pipelines.create({}, {requestBody: pipSpec});
+  const pip = await codefresh.pipelines.create(pipSpec);
   console.log('pipeline created:', pip);
   const pips = await codefresh.pipelines.getAll();
   console.log('pipelines:', pips);
