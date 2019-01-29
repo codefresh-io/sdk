@@ -8,10 +8,12 @@
     "bluebird": "^3.5.3",
     "cf-errors": "^0.1.11",
     "debug": "^4.1.1",
+    "firebase": "git+https://github.com/codefresh-io/firebase.git#80b2ed883ff281cd67b53bd0f6a0bbd6f330fed5",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
     "recursive-readdir": "^2.2.2",
     "request": "^2.88.0",
+    "request-promise": "^4.2.2",
     "requestretry": "^3.1.0",
     "swagger-client": "^3.8.22"
   }

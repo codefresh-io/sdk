@@ -15,16 +15,17 @@ async function use() {
     // client operations
     // const pip = await codefresh.pipelines.create(pipSpec);
     // console.log('pipeline created:', pip);
-    const pips = await codefresh.pipelines.getAll();
-    console.log('pipelines:', pips);
-
-    // destructuring
-    const {pipelines} = codefresh;
-    console.log(await pipelines.getAll());
-    console.log(await pipelines.getAll());
+    // const pips = await codefresh.pipelines.getAll();
+    // console.log('pipelines:', pips);
+    //
+    // // destructuring
+    // const {pipelines} = codefresh;
+    // console.log(await pipelines.getAll());
+    // console.log(await pipelines.getAll());
 
     // logic operations
-    await codefresh.workflows.waitForStatus('asdf', 'success', moment().add(30, 'seconds'));
+    await codefresh.logs.showWorkflowLogs('5c5038d2d5a10276db017373');
+    // await codefresh.workflows.waitForStatus('asdf', 'success', moment().add(30, 'seconds'));
 }
 
 use().then().catch(reason => {
