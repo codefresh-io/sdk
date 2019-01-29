@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {},
   "dependencies": {
+    "bluebird": "^3.5.3",
     "cf-errors": "^0.1.11",
     "debug": "^4.1.1",
     "lodash": "^4.17.11",
+    "moment": "^2.24.0",
     "recursive-readdir": "^2.2.2",
     "request": "^2.88.0",
     "requestretry": "^3.1.0",
