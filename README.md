@@ -42,7 +42,15 @@ sdk.configure({
 
 Every sdk operation is built corresponding openapi spec: 
 
-`sdk.<tag>.<operationId>({<parameters>}, {requestBody: <body>})`
+`sdk.<tag>.<operationId>({<parameters>}, <body>)`
+
+or when only body is needed:
+
+`sdk.<tag>.<operationId>(<body>)`
+
+or only params:
+
+`sdk.<tag>.<operationId>({<parameters>})`
 
 For example, getting pipelines can be made in such way:
 
@@ -69,7 +77,7 @@ const data = {
             }
         }
     }
-}
+};
 
 sdk.pipelines.create(data);
 ```
@@ -77,7 +85,7 @@ sdk.pipelines.create(data);
 Updating pipeline:
 
 ```ecmascript 6
-const data = { /* same data */ }
+const data = { /* same data */ };
 sdk.pipelines.update({name: 'some-pip'}, data);
 ```
 Running pipeline:
@@ -93,7 +101,7 @@ const data = {
         noCache: true,
         resetVolume: true
     }
-}
+};
 
 sdk.pipelines.run({name: 'some-pip'}, data);
 ```
