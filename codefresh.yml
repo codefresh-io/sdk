@@ -33,10 +33,10 @@ steps:
     stage: CD
     image: codefresh/cli
     commands:
-      - 'apk update && apk add jq'
-      - 'export PACKAGE_VERSION=$(jq -r ".version" package.json)'
-      - "echo Current version: $PACKAGE_VERSION"
-      - "git tag $PACKAGE_VERSION"
+    - 'apk update && apk add jq'
+    - 'export PACKAGE_VERSION=$(jq -r ".version" package.json)'
+    - "echo Current version: $PACKAGE_VERSION"
+    - "git tag $PACKAGE_VERSION"
     when:
       branch:
         only: [ master ]
