@@ -2598,7 +2598,7 @@
           }
         ],
         "tags": [
-          "helm boards"
+          "helm.boards"
         ],
         "operationId": "getAll6",
         "summary": "getAll"

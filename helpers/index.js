@@ -1,31 +1,25 @@
+const _ = require('lodash');
+
 const resourceProxy = (clientHandler, logicHandler, resourceName) => {
-    const methods = {};
-    return new Proxy({}, {
-        get(target, p) {
+    const children = {};
+    return new Proxy(clientHandler, {
+        get(handler, p) {
             const path = `${resourceName}.${p}`;
             const logicResource = logicHandler(path);
             if (logicResource) {
                 return logicResource;
             }
-            let method = methods[p];
-            if (!method) {
-                method = methodProxy(clientHandler, path);
-                methods[p] = method;
+            let child = children[p];
+            if (!child) {
+                child = resourceProxy(clientHandler, _.noop, path);
+                children[p] = child;
             }
-            return method;
-        }
+            return child;
+        },
+        apply(handler, that, args) {
+            return handler(resourceName, args);
+        },
     });
 };
 
-const methodProxy = (handler, path) => {
-    return new Proxy(handler, {
-        apply(target, thisArg, argArray) {
-            return target(path, argArray);
-        }
-    });
-};
-
-module.exports = {
-    resourceProxy,
-    methodProxy,
-};
+module.exports = { resourceProxy };

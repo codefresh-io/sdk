@@ -5,9 +5,9 @@ Codefresh SDK built on openapi spec.
 ## Install
 For now it's local only:
 
-`yarn add /path/to/repo`
+`yarn add codefresh-sdk`
 
-`npm i /path/to/repo`
+`npm install codefresh-sdk`
 
 ## Usage
 
@@ -26,7 +26,7 @@ sdk.configure(config);
 
 ### Configuration Properties
 
-Sdk requires `apiKey` to authenticate it's requests. Sdk client can be generated either from 
+Sdk requires `apiKey` to authenticate its requests. Sdk client can be generated either from
 provided openapi spec or from spec using `specUrl`.
 
 ```ecmascript 6
@@ -40,9 +40,17 @@ sdk.configure({
 
 ### Basic usage
 
-Every sdk operation is built corresponding openapi spec: 
+Every sdk operation is built corresponding openapi spec:
 
-`sdk.<tag>.<operationId>({<parameters>}, {requestBody: <body>})`
+`sdk.<tag>.<operationId>({<parameters>}, <body>)`
+
+or when only body is needed:
+
+`sdk.<tag>.<operationId>(<body>)`
+
+or only params:
+
+`sdk.<tag>.<operationId>({<parameters>})`
 
 For example, getting pipelines can be made in such way:
 
@@ -69,7 +77,7 @@ const data = {
             }
         }
     }
-}
+};
 
 sdk.pipelines.create(data);
 ```
@@ -77,7 +85,7 @@ sdk.pipelines.create(data);
 Updating pipeline:
 
 ```ecmascript 6
-const data = { /* same data */ }
+const data = { /* same data */ };
 sdk.pipelines.update({name: 'some-pip'}, data);
 ```
 Running pipeline:
@@ -93,7 +101,7 @@ const data = {
         noCache: true,
         resetVolume: true
     }
-}
+};
 
 sdk.pipelines.run({name: 'some-pip'}, data);
 ```

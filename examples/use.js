@@ -24,7 +24,9 @@ async function use() {
     // console.log(await pipelines.getAll());
 
     // logic operations
-    await codefresh.logs.showWorkflowLogs('5c5038d2d5a10276db017373');
+    const boards = await codefresh.helm.boards.getAll();
+    console.log(boards);
+    // await codefresh.logs.showWorkflowLogs('5c5038d2d5a10276db017373');
     // await codefresh.workflows.waitForStatus('asdf', 'success', moment().add(30, 'seconds'));
 }
 
