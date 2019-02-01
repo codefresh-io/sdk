@@ -18,7 +18,7 @@ const resourceProxy = (clientHandler, logicHandler, resourceName) => {
         },
         apply(handler, that, args) {
             return handler(resourceName, args);
-        }
+        },
     });
 };
 

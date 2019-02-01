@@ -5,9 +5,9 @@ Codefresh SDK built on openapi spec.
 ## Install
 For now it's local only:
 
-`yarn add /path/to/repo`
+`yarn add codefresh-sdk`
 
-`npm i /path/to/repo`
+`npm install codefresh-sdk`
 
 ## Usage
 
@@ -26,7 +26,7 @@ sdk.configure(config);
 
 ### Configuration Properties
 
-Sdk requires `apiKey` to authenticate it's requests. Sdk client can be generated either from 
+Sdk requires `apiKey` to authenticate its requests. Sdk client can be generated either from
 provided openapi spec or from spec using `specUrl`.
 
 ```ecmascript 6
@@ -40,7 +40,7 @@ sdk.configure({
 
 ### Basic usage
 
-Every sdk operation is built corresponding openapi spec: 
+Every sdk operation is built corresponding openapi spec:
 
 `sdk.<tag>.<operationId>({<parameters>}, <body>)`
 
