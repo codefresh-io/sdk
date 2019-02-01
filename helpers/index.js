@@ -22,6 +22,4 @@ const resourceProxy = (clientHandler, logicHandler, resourceName) => {
     });
 };
 
-module.exports = {
-    resourceProxy,
-};
+module.exports = { resourceProxy };
