@@ -36,6 +36,7 @@ steps:
     - 'apk update && apk add jq'
     - 'export PACKAGE_VERSION=$(jq -r ".version" package.json)'
     - "echo Current version: $PACKAGE_VERSION"
+    - "cf_export PACKAGE_VERSION"
     - "git tag $PACKAGE_VERSION"
     when:
       branch:
