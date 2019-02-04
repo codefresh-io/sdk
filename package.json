@@ -14,7 +14,10 @@
   "dependencies": {
     "bluebird": "^3.5.3",
     "cf-errors": "^0.1.11",
+    "compare-versions": "^3.4.0",
     "debug": "^4.1.1",
+    "decompress": "^4.2.0",
+    "decompress-targz": "^4.1.1",
     "firebase": "git+https://github.com/codefresh-io/firebase.git#80b2ed883ff281cd67b53bd0f6a0bbd6f330fed5",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
