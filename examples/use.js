@@ -1,33 +1,31 @@
 const Codefresh = require('../index');
-const moment = require('moment');
 
 const swaggerSpec = require('./openapi');
-const pipSpec = require('./pip-spec');
 
 async function use() {
-    const codefresh = Codefresh();
-    codefresh.configure({
-        url: 'http://local.codefresh.io',
+    const sdk = Codefresh();
+    sdk.configure({
+        url: 'http://local.sdk.io',
         spec: swaggerSpec,
-        apiKey: process.env.CF_API_KEY
+        apiKey: process.env.CF_API_KEY,
     });
 
     // client operations
-    // const pip = await codefresh.pipelines.create(pipSpec);
+    // const pip = await sdk.pipelines.create(pipSpec);
     // console.log('pipeline created:', pip);
-    // const pips = await codefresh.pipelines.getAll();
+    // const pips = await sdk.pipelines.getAll();
     // console.log('pipelines:', pips);
     //
     // // destructuring
-    // const {pipelines} = codefresh;
+    // const {pipelines} = sdk;
     // console.log(await pipelines.getAll());
     // console.log(await pipelines.getAll());
 
     // logic operations
-    const boards = await codefresh.helm.boards.getAll();
+    const boards = await sdk.helm.sections.getAll();
     console.log(boards);
-    // await codefresh.logs.showWorkflowLogs('5c5038d2d5a10276db017373');
-    // await codefresh.workflows.waitForStatus('asdf', 'success', moment().add(30, 'seconds'));
+    // await sdk.logs.showWorkflowLogs('5c5038d2d5a10276db017373');
+    // await sdk.workflows.waitForStatus('asdf', 'success', moment().add(30, 'seconds'));
 }
 
 use().then().catch(reason => {
