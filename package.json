@@ -40,6 +40,10 @@
     "testPathIgnorePatterns": [
       "/node_modules/"
     ],
+    "setupFiles": [
+      "./test-setup.js"
+    ],
+    "coveragePathIgnorePatterns": ["test-setup.js", "error.js"],
     "coverageThreshold": {
       "global": {
         "branches": 85,
