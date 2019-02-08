@@ -1,8 +1,9 @@
 const path = require('path');
 const fs = require('fs');
-const request = require('requestretry');
+const request = require('request-promise').defaults({ resolveWithFullResponse: true });
 const CFError = require('cf-errors');
 const moment = require('moment');
+const debug = require('debug')('codefresh:sdk:cache');
 
 const defaults = require('../lib/defaults');
 const { handleErrors } = require('./error');
@@ -13,7 +14,7 @@ async function _downloadSpec(url) {
         handleErrors(response);
         return JSON.parse(response.body);
     } catch (e) {
-        throw new CFError({ message: `Sdk: Could not load openapi.json from url: ${url}` });
+        throw new CFError({ message: `Sdk: Could not load openapi.json from url: ${url}`, cause: e });
     }
 }
 
@@ -37,8 +38,17 @@ const loadOpenApiSpec = async ({ specUrl = null, disableCache = false, forceRefr
     const cacheExists = fs.existsSync(cachePath);
 
     if (cacheExists && !forceRefresh) {
-        return JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+        try {
+            const spec = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+            if (spec) {
+                return spec;
+            }
+        } catch (e) {
+            debug(e.stack);
+            debug('Could not read spec from cache -- refreshing');
+        }
     }
+
     if (!fs.existsSync(defaults.CODEFRESH_PATH)) {
         fs.mkdirSync(defaults.CODEFRESH_PATH);
     }
