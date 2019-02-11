@@ -40,16 +40,17 @@ function _generateSwaggerOps(spec) {
  * */
 function postProcessApi(swagger, spec) {
     const ops = _generateSwaggerOps(swagger.spec);
-    return _.reduce(swagger.apis, (acc, tag) => {
-        const temp = _.reduce(tag, (acc, operation, operationId) => { // eslint-disable-line
+    return _.reduce(swagger.apis, (acc, resource) => {
+        const temp = _.reduce(resource, (acc, operation, operationId) => { // eslint-disable-line
             const op = ops[operationId];
-            const interfacePath = _.get(spec, `paths.${op.url}.${op.httpMethod}.x-sdk-interface`);
-            if (!interfacePath) {
+            const methodSpec = _.get(spec, `paths.${op.url}.${op.httpMethod}`);
+            if (!methodSpec || !methodSpec['x-sdk-interface']) {
                 return acc;
             }
 
+            operation.spec = methodSpec; // eslint-disable-line
             const temp = {}; // eslint-disable-line
-            _.set(temp, interfacePath, operation);
+            _.set(temp, methodSpec['x-sdk-interface'], operation);
             return _.merge(acc, temp);
         }, {});
 

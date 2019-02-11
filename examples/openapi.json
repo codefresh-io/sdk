@@ -17,7 +17,7 @@
   },
   "servers": [
     {
-      "url": "https://g.codefresh.io/api"
+      "url": "http://local.codefresh.io/api"
     }
   ],
   "paths": {
