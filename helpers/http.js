@@ -30,9 +30,9 @@ const Http = (options) => {
     return new Proxy(http, {
         async apply(handler, that, args) {
             const req = _.first(args) || {};
-            debug(`${req.method} ${req.url}${req.body ? ` | ${req.body}` : ''}`);
+            debug(`${req.method} ${req.url}`);
             const response = await handler(...args);
-            debug(`${response.statusCode} -- ${response.body}`);
+            debug(`status: ${response.statusCode}`);
             handleErrors(response);
             try {
                 response.body = JSON.parse(response.body); // json option at request config does not work properly
