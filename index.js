@@ -5,5 +5,3 @@ function Codefresh(config) {
 }
 
 module.exports = Codefresh;
-
-

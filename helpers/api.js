@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const debug = require('debug')('codefresh:sdk:client:post-process');
 
 const resourceProxy = (clientHandler, logicHandler, resourceName) => {
     const children = {};
@@ -40,7 +41,7 @@ function _generateSwaggerOps(spec) {
  * */
 function postProcessApi(swagger, spec) {
     const ops = _generateSwaggerOps(swagger.spec);
-    return _.reduce(swagger.apis, (acc, resource) => {
+    const apis = _.reduce(swagger.apis, (acc, resource) => {
         const temp = _.reduce(resource, (acc, operation, operationId) => { // eslint-disable-line
             const op = ops[operationId];
             const methodSpec = _.get(spec, `paths.${op.url}.${op.httpMethod}`);
@@ -56,6 +57,8 @@ function postProcessApi(swagger, spec) {
 
         return _.merge(acc, temp);
     }, {});
+    debug('apis: %O', apis);
+    return apis;
 }
 
 module.exports = {

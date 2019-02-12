@@ -10,11 +10,15 @@ const { handleErrors } = require('./error');
 
 async function _downloadSpec(url) {
     try {
+        debug('downloading spec:', url);
         const response = await request({ url });
         handleErrors(response);
+        debug('spec downloaded)');
         return JSON.parse(response.body);
     } catch (e) {
-        throw new CFError({ message: `Sdk: Could not load openapi.json from url: ${url}`, cause: e });
+        const message = `Sdk: Could not load openapi.json from url: ${url}`;
+        debug(message);
+        throw new CFError({ message, cause: e });
     }
 }
 
@@ -27,17 +31,19 @@ async function _downloadSpec(url) {
 const loadOpenApiSpec = async ({ specUrl = null, disableCache = false, forceRefresh = false } = {}) => {
     const url = specUrl || defaults.SPEC_URL;
     if (disableCache) {
+        debug('spec cache disabled');
         return _downloadSpec(url);
     }
 
-    const currentDate = moment();
+    const currentDate = moment().format('YYYY-MM-DD');
     const cacheDir = path.join(defaults.CODEFRESH_PATH, 'openapi-cache');
-    const cacheFileName = `openapi-${currentDate.format('YYYY-MM-DD')}.json`;
+    const cacheFileName = `openapi-${currentDate}.json`;
     const cachePath = path.join(cacheDir, cacheFileName);
 
     const cacheExists = fs.existsSync(cachePath);
 
     if (cacheExists && !forceRefresh) {
+        debug('reading spec from cache:', cacheFileName);
         try {
             const spec = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
             if (spec) {
@@ -57,6 +63,7 @@ const loadOpenApiSpec = async ({ specUrl = null, disableCache = false, forceRefr
     }
 
     const spec = await _downloadSpec(url);
+    debug('writing cache to file:', cacheFileName);
     fs.writeFileSync(cachePath, JSON.stringify(spec, null, '\t'));
     return spec;
 };
