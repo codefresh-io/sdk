@@ -6,6 +6,7 @@ async function use() {
     sdk.configure({
         url: 'http://local.codefresh.io',
         // spec: swaggerSpec,
+        // accessToken: process.env.CF_API_KEY,
         apiKey: process.env.CF_API_KEY,
     });
 

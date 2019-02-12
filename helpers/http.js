@@ -8,7 +8,7 @@ const { handleErrors } = require('../helpers/error');
 const RETRY_STATUS_CODES = [502, 503, 504];
 const RETRY_STRATEGY = (err, response) => (process.env.DEBUG || '').startsWith(defaults.DEBUG_PATTERN) && (request.RetryStrategies.NetworkError(err) || RETRY_STATUS_CODES.includes(response.statusCode)); // eslint-disable-line max-len
 
-const Http = (options) => {
+const Http = (options, token) => { // todo: move to openapi.json
     const {
         request: {
             timeout,
@@ -23,6 +23,10 @@ const Http = (options) => {
         retryDelay: retryDelay || defaults.RETRY_DELAY,
         retryStrategy: RETRY_STRATEGY,
     };
+
+    if (token) {
+        config.headers = { 'x-access-token': token }; // todo: move to openapi.json
+    }
     const http = request.defaults(config);
 
     debug('http created: %o', config);
