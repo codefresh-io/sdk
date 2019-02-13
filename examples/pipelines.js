@@ -1,17 +1,13 @@
 const Codefresh = require('../index');
 
-const config = {
-    apiKey: '',
-    url: 'http://local.codefresh.io',
-    spec: '',
-};
-
-// create with config
-const sdk = Codefresh(config);
-
-
 const main = async () => {
-    const pipelines = await sdk.pipelines.getAll(/* some filter params may be here */);
+    const sdk = Codefresh();
+    sdk.configure({
+        apiKey: process.env.CF_API_KEY,
+    });
+
+    const pipelines = await sdk.pipelines.list(/* some filter params may be here */);
+    console.log(JSON.stringify(pipelines, 4, 2));
 };
 
 main();
