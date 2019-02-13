@@ -1,13 +1,11 @@
 const Codefresh = require('../index');
-const swaggerSpec = require('./openapi');
 
 async function use() {
     const sdk = Codefresh();
     sdk.configure({
-        url: 'http://local.codefresh.io',
+        apiKey: process.env.CF_API_KEY
         // spec: swaggerSpec,
         // accessToken: process.env.CF_API_KEY,
-        apiKey: process.env.CF_API_KEY,
     });
 
     // client operations
