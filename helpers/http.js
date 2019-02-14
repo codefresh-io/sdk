@@ -8,14 +8,15 @@ const { handleErrors } = require('../helpers/error');
 const RETRY_STATUS_CODES = [502, 503, 504];
 const RETRY_STRATEGY = (err, response) => (process.env.DEBUG || '').startsWith(defaults.DEBUG_PATTERN) && (request.RetryStrategies.NetworkError(err) || RETRY_STATUS_CODES.includes(response.statusCode)); // eslint-disable-line max-len
 
-const Http = (options, token) => { // todo: move to openapi.json
+const Http = (options, isJwt = false) => {
     const {
+        apiKey,
         request: {
             timeout,
             maxRetries,
             retryDelay,
         } = {},
-    } = options;
+    } = options || {};
 
     const config = {
         timeout: timeout || defaults.TIMEOUT,
@@ -24,8 +25,8 @@ const Http = (options, token) => { // todo: move to openapi.json
         retryStrategy: RETRY_STRATEGY,
     };
 
-    if (token) {
-        config.headers = { 'x-access-token': token }; // todo: move to openapi.json
+    if (isJwt) {
+        config.headers = { 'x-access-token': apiKey };
     }
     const http = request.defaults(config);
 
