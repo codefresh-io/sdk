@@ -10,7 +10,7 @@ const { JWTContext, APIKeyContext } = contexts;
 const createContext = async (apiKey, url, name) => {
     const Context = testJwt(apiKey) ? JWTContext : APIKeyContext;
 
-    debug('creating: %o', { apiKey: `${apiKey.substring(0, 10)}...`, url });
+    debug('creating: %o', { apiKey: `${apiKey && apiKey.substring(0, 10)}...`, url });
     const context = Context.createFromToken(apiKey, url);
 
     context.name = name || context.name;

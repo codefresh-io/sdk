@@ -1,34 +1,51 @@
 const { Codefresh, Config } = require('../index');
 
 async function use() {
-    const config = await Config.autoDetect({
-        configPath: 'asdf/asdf/asdf',
-        // url: 'http://local.codefresh.io',
-        // spec: { url: 'http://local.codefresh.io/api/openapi.json' },
-        // apiKey: process.env.CF_API_KEY,
-        // apiKey: process.env.CF_JWT_TOKEN,
-        apiKeyEnv: 'asdf',
+    const sdk = Codefresh();
+
+    // just provide
+    let config = await Config.fromProvided({
+        url: 'http://local.codefresh.io',
+        apiKey: process.env.CF_API_TOKEN,
     });
 
-    const sdk = Codefresh();
     sdk.configure(config);
+    await sdk.helm.boards.list();
+
+
+    // load from default or specific env var
+    // default: CF_URL and CF_API_KEY
+    config = await Config.fromEnv({ apiKeyEnv: 'CF_API_TOKEN' });
+    sdk.configure(config);
+    await sdk.helm.boards.list();
+
+
+    // load from default or specific file with default or specific context
+    config = await Config.fromFile({ context: 'local' });
+    sdk.configure(config);
+    await sdk.helm.boards.list();
+
+
+    // 1) try to get apiKey and url from options
+    // 2) if not - from env
+    // 3) if not - from file
+    config = await Config.autoDetect();
+    sdk.configure(config);
+    await sdk.helm.boards.list();
+
 
     // creating context
     const manager = sdk.config.manager();
-    const context = await manager.createContext(process.env.CF_API_KEY, 'http://local.codefresh.io', 'test');
+    const context = await manager.createContext(process.env.CF_API_TOKEN, 'http://local.codefresh.io', 'test');
     manager.setCurrentContext(context);
     await manager.persistConfig();
 
     // need to reconfigure
     sdk.configure(await config.recreate());
 
-    const boards = await sdk.helm.boards.list();
-    console.log(boards);
-
-    // await sdk.logs.showWorkflowLogs('5c5038d2d5a10276db017373');
-    // await sdk.workflows.waitForStatus('asdf', 'success', moment().add(30, 'seconds'));
+    await sdk.helm.boards.list();
 }
 
-use().then().catch(reason => {
-    console.error(reason)
+use().then().catch((reason) => {
+    console.error(reason);
 });
