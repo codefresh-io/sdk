@@ -1,7 +1,7 @@
 const { Codefresh, Config } = require('../index');
 
 async function use() {
-    const sdk = Codefresh();
+    const sdk = new Codefresh();
 
     // just provide
     let config = await Config.fromProvided({
