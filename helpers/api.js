@@ -74,6 +74,4 @@ function postProcessApi(swagger, spec) {
     return apis;
 }
 
-module.exports = {
-    postProcessApi,
-};
+module.exports = { postProcessApi };

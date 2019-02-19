@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 
 const testJwt = (token) => {
-    let isJwt = false; // eslint-disable-line
+    let isJwt = false;
     try {
         isJwt = !!jwt.decode(token);
     } catch (e) {
