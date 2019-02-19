@@ -78,7 +78,7 @@ describe('Config', () => {
             await Config.fromProvided(options);
 
             expect(createContext).lastCalledWith(options.apiKey, defaults.URL);
-            expect(Config._initializeConfig).lastCalledWith({ token: options.apiKey, url: defaults.URL }, options);
+            expect(Config._initializeConfig).lastCalledWith(expect.objectContaining({ token: options.apiKey, url: defaults.URL }), options);
         });
 
         it('should continue processing when api key and url are provided', async () => {
@@ -86,7 +86,7 @@ describe('Config', () => {
             await Config.fromProvided(options);
 
             expect(createContext).lastCalledWith(options.apiKey, options.url);
-            expect(Config._initializeConfig).lastCalledWith({ token: options.apiKey, url: options.url }, options);
+            expect(Config._initializeConfig).lastCalledWith(expect.objectContaining({ token: options.apiKey, url: options.url }), options);
         });
 
         it('should add _recreator function to config and it must equal Config.fromProvided', async () => {
