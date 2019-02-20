@@ -51,7 +51,8 @@
       "/node_modules/",
       "test-setup.js",
       "defaults.js",
-      "/lib/logic/"
+      "/lib/logic/",
+      "/lib/auth/contexts"
     ],
     "coverageThreshold": {
       "global": {

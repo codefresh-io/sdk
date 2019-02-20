@@ -27,19 +27,19 @@ jest.mock('../helpers/http', () => {
 });
 
 const originalInitializeConfig = Config._initializeConfig;
-const originalFromProvided = Config.fromProvided;
-const originalFromEnv = Config.fromEnv;
-const originalFromFile = Config.fromFile;
+const originalFromProvided = Config._fromProvided;
+const originalFromEnv = Config._fromEnv;
+const originalFromFile = Config.fromCodefreshConfig;
 
 describe('Config', () => {
     beforeEach(() => {
         Config._initializeConfig = originalInitializeConfig.bind(Config);
-        Config.fromProvided = originalFromProvided.bind(Config);
-        Config.fromEnv = originalFromEnv.bind(Config);
-        Config.fromFile = originalFromFile.bind(Config);
+        Config._fromProvided = originalFromProvided.bind(Config);
+        Config._fromEnv = originalFromEnv.bind(Config);
+        Config.fromCodefreshConfig = originalFromFile.bind(Config);
     });
 
-    describe('#fromProvided()', () => {
+    describe('#_fromProvided()', () => {
         beforeEach(() => {
             Config._initializeConfig = jest.fn((context, options) => ({ context, options }));
             createContext.mockClear();
@@ -48,7 +48,7 @@ describe('Config', () => {
         it('should throw on apiKey not provided', async () => {
             const options = { apiKey: undefined };
             await expectThrows(async () => { // eslint-disable-line
-                await Config.fromProvided(options);
+                await Config._fromProvided(options);
             });
             expect(Config._initializeConfig).not.toBeCalled();
         });
@@ -56,7 +56,7 @@ describe('Config', () => {
         it('should throw on url being null', async () => {
             const options = { apiKey: 'api key', url: null };
             await expectThrows(async () => { // eslint-disable-line
-                await Config.fromProvided(options);
+                await Config._fromProvided(options);
             });
             expect(Config._initializeConfig).not.toBeCalled();
         });
@@ -68,14 +68,14 @@ describe('Config', () => {
             });
 
             await expectThrows(async () => { // eslint-disable-line
-                await Config.fromProvided(options);
+                await Config._fromProvided(options);
             }, CFError);
             expect(Config._initializeConfig).toBeCalled();
         });
 
         it('should continue processing when api key is provided using default url', async () => {
             const options = { apiKey: 'api key' };
-            await Config.fromProvided(options);
+            await Config._fromProvided(options);
 
             expect(createContext).lastCalledWith(options.apiKey, defaults.URL);
             expect(Config._initializeConfig).lastCalledWith(expect.objectContaining({ token: options.apiKey, url: defaults.URL }), options);
@@ -83,26 +83,17 @@ describe('Config', () => {
 
         it('should continue processing when api key and url are provided', async () => {
             const options = { apiKey: 'api key', url: 'url' };
-            await Config.fromProvided(options);
+            await Config._fromProvided(options);
 
             expect(createContext).lastCalledWith(options.apiKey, options.url);
             expect(Config._initializeConfig).lastCalledWith(expect.objectContaining({ token: options.apiKey, url: options.url }), options);
         });
-
-        it('should add _recreator function to config and it must equal Config.fromProvided', async () => {
-            const options = { apiKey: 'api key', url: 'url' };
-            const config = await Config.fromProvided(options);
-
-            expect(config).not.toBeNull();
-            expect(config._recreator).not.toBeNull();
-            expect(config._recreator.name).toBe(Config.fromProvided.bind(Config).name);
-        });
     });
 
-    describe('#fromEnv()', () => {
+    describe('#_fromEnv()', () => {
         beforeEach(() => {
             Config._initializeConfig = jest.fn((context, options) => ({ context, options }));
-            Config.fromProvided = jest.fn(({ apiKey, url }) => ({
+            Config._fromProvided = jest.fn(({ apiKey, url }) => ({
                 context: { token: apiKey, url },
                 options: { apiKey, url },
             }));
@@ -111,31 +102,31 @@ describe('Config', () => {
         it('should throw on apiKey not provided at process.env.CF_API_KEY', async () => {
             const options = {};
             await expectThrows(async () => { // eslint-disable-line
-                await Config.fromEnv(options);
+                await Config._fromEnv(options);
             });
-            expect(Config.fromProvided).not.toBeCalled();
+            expect(Config._fromProvided).not.toBeCalled();
         });
 
         it('should rethrow if something breaks at following operations', async () => {
             process.env.CF_API_KEY = 'apiKey';
             const options = {};
-            Config.fromProvided = jest.fn(() => {
+            Config._fromProvided = jest.fn(() => {
                 throw new Error();
             });
 
             await expectThrows(async () => { // eslint-disable-line
-                await Config.fromEnv(options);
+                await Config._fromEnv(options);
             }, CFError);
-            expect(Config.fromProvided).toBeCalled();
+            expect(Config._fromProvided).toBeCalled();
         });
 
         it('should continue processing when process.env.CF_API_KEY is provided', async () => {
             const testApiKey = 'api key';
             process.env.CF_API_KEY = testApiKey;
             const options = {};
-            await Config.fromEnv(options);
+            await Config._fromEnv(options);
 
-            expect(Config.fromProvided).lastCalledWith({ apiKey: testApiKey, url: undefined });
+            expect(Config._fromProvided).lastCalledWith({ apiKey: testApiKey, url: undefined });
         });
 
         it('should continue processing when process.env.CF_API_KEY and process.env.CF_URL are provided', async () => {
@@ -146,22 +137,13 @@ describe('Config', () => {
             process.env.CF_URL = testUrl;
 
             const options = {};
-            await Config.fromEnv(options);
+            await Config._fromEnv(options);
 
-            expect(Config.fromProvided).lastCalledWith({ apiKey: testApiKey, url: testUrl });
-        });
-
-        it('should add _recreator function to config and it must equal Config.fromEnv', async () => {
-            const options = { apiKey: 'api key', url: 'url' };
-            const config = await Config.fromEnv(options);
-
-            expect(config).not.toBeNull();
-            expect(config._recreator).not.toBeNull();
-            expect(config._recreator.name).toBe(Config.fromEnv.bind(Config).name);
+            expect(Config._fromProvided).lastCalledWith({ apiKey: testApiKey, url: testUrl });
         });
     });
 
-    describe('#fromFile()', () => {
+    describe('#fromCodefreshConfig()', () => {
         beforeEach(() => {
             Config._initializeConfig = jest.fn((context, options) => ({ context, options }));
             manager.loadConfig = jest.fn();
@@ -172,13 +154,20 @@ describe('Config', () => {
 
         it('should load config from default path when not specified', async () => {
             const options = {};
-            await Config.fromFile(options);
+            await Config.fromCodefreshConfig(options);
             expect(manager.loadConfig).toBeCalledWith(defaults.CF_CONFIG_PATH);
+        });
+
+        it('should load config form path at process.env.CFCONFIG', async () => {
+            process.env[defaults.CF_CONFIG_ENV] = 'path';
+            const options = {};
+            await Config.fromCodefreshConfig(options);
+            expect(manager.loadConfig).toBeCalledWith(process.env[defaults.CF_CONFIG_ENV]);
         });
 
         it('should load config from specific path when provided', async () => {
             const options = { configPath: 'path' };
-            await Config.fromFile(options);
+            await Config.fromCodefreshConfig(options);
             expect(manager.loadConfig).toBeCalledWith(options.configPath);
         });
 
@@ -187,7 +176,7 @@ describe('Config', () => {
             const options = { context: 'not-existing' };
 
             await expectThrows(async () => { // eslint-disable-line
-                await Config.fromFile(options);
+                await Config.fromCodefreshConfig(options);
             });
 
             expect(manager.loadConfig).toBeCalled();
@@ -200,7 +189,7 @@ describe('Config', () => {
             const options = {};
 
             await expectThrows(async () => { // eslint-disable-line
-                await Config.fromFile(options);
+                await Config.fromCodefreshConfig(options);
             });
 
             expect(manager.loadConfig).toBeCalled();
@@ -216,7 +205,7 @@ describe('Config', () => {
             });
 
             await expectThrows(async () => { // eslint-disable-line
-                await Config.fromFile(options);
+                await Config.fromCodefreshConfig(options);
             }, CFError);
             expect(Config._initializeConfig).toBeCalled();
         });
@@ -225,7 +214,7 @@ describe('Config', () => {
             manager.getContextByName = jest.fn(() => ({}));
             const options = { context: 'exising' };
 
-            await Config.fromFile(options);
+            await Config.fromCodefreshConfig(options);
 
             expect(manager.loadConfig).toBeCalled();
             expect(manager.getContextByName).toBeCalledWith(options.context);
@@ -236,7 +225,7 @@ describe('Config', () => {
         it('should not get context by name when name is not specified', async () => {
             const options = { context: undefined };
 
-            await Config.fromFile(options);
+            await Config.fromCodefreshConfig(options);
 
             expect(manager.loadConfig).toBeCalled();
             expect(manager.getContextByName).not.toBeCalled();
@@ -248,7 +237,7 @@ describe('Config', () => {
             manager.hasContexts = jest.fn(() => false);
             const options = {};
 
-            const config = await Config.fromFile(options);
+            const config = await Config.fromCodefreshConfig(options);
 
             expect(manager.loadConfig).toBeCalled();
             expect(manager.hasContexts).toBeCalled();
@@ -263,7 +252,7 @@ describe('Config', () => {
             manager.hasContexts = jest.fn(() => false);
             const options = { url: 'url' };
 
-            const config = await Config.fromFile(options);
+            const config = await Config.fromCodefreshConfig(options);
 
             expect(manager.loadConfig).toBeCalled();
             expect(manager.hasContexts).toBeCalled();
@@ -272,29 +261,6 @@ describe('Config', () => {
             expect(config.context).not.toBeNull();
             expect(config.context).toBeInstanceOf(contexts.NoAuthContext);
             expect(config.context.url).toBe(options.url);
-        });
-
-        it('should add _recreator function to config and it must equal Config.fromFile when context loaded', async () => {
-            const options = {};
-            const config = await Config.fromFile(options);
-
-            expect(manager.getCurrentContext).toBeCalled();
-            expect(Config._initializeConfig).toBeCalled();
-            expect(config).not.toBeNull();
-            expect(config._recreator).not.toBeNull();
-            expect(config._recreator.name).toBe(Config.fromFile.bind(Config).name);
-        });
-
-        it('should add _recreator function to config and it must equal Config.fromFile when using NoAuthContext', async () => {
-            manager.hasContexts = jest.fn(() => false);
-            const options = {};
-            const config = await Config.fromFile(options);
-
-            expect(manager.hasContexts).toBeCalled();
-            expect(Config._initializeConfig).toBeCalled();
-            expect(config).not.toBeNull();
-            expect(config._recreator).not.toBeNull();
-            expect(config._recreator.name).toBe(Config.fromFile.bind(Config).name);
         });
     });
 
@@ -451,96 +417,77 @@ describe('Config', () => {
                 options,
                 swagger: swaggerOptions, // mocked Swagger just returns its options
                 http: Http.__getClient(),
-                _recreator: null,
             });
         });
     });
 
-    describe('#autoDetect()', () => {
+    describe('#load()', () => {
         it('should load from provided first', async () => {
-            Config.fromProvided = jest.fn(() => ({}));
-            Config.fromEnv = jest.fn(() => ({}));
-            Config.fromFile = jest.fn(() => ({}));
+            Config._fromProvided = jest.fn(() => ({}));
+            Config._fromEnv = jest.fn(() => ({}));
+            Config.fromCodefreshConfig = jest.fn(() => ({}));
 
-            await Config.autoDetect();
+            await Config.load();
 
-            expect(Config.fromProvided).toBeCalled();
-            expect(Config.fromEnv).not.toBeCalled();
-            expect(Config.fromFile).not.toBeCalled();
+            expect(Config._fromProvided).toBeCalled();
+            expect(Config._fromEnv).not.toBeCalled();
+            expect(Config.fromCodefreshConfig).not.toBeCalled();
         });
 
         it('should load from env when could not load from provided', async () => {
-            Config.fromProvided = jest.fn(() => {
+            Config._fromProvided = jest.fn(() => {
                 throw new Error();
             });
-            Config.fromEnv = jest.fn(() => ({}));
-            Config.fromFile = jest.fn(() => ({}));
+            Config._fromEnv = jest.fn(() => ({}));
+            Config.fromCodefreshConfig = jest.fn(() => ({}));
 
-            await Config.autoDetect();
+            await Config.load();
 
-            expect(Config.fromProvided).toBeCalled();
-            expect(Config.fromEnv).toBeCalled();
-            expect(Config.fromFile).not.toBeCalled();
+            expect(Config._fromProvided).toBeCalled();
+            expect(Config._fromEnv).toBeCalled();
+            expect(Config.fromCodefreshConfig).not.toBeCalled();
         });
 
         it('should load from file when could not load from env', async () => {
-            Config.fromProvided = jest.fn(() => {
+            Config._fromProvided = jest.fn(() => {
                 throw new Error();
             });
-            Config.fromEnv = jest.fn(() => {
+            Config._fromEnv = jest.fn(() => {
                 throw new Error();
             });
-            Config.fromFile = jest.fn(() => ({}));
+            Config.fromCodefreshConfig = jest.fn(() => ({}));
 
-            await Config.autoDetect();
+            await Config.load();
 
-            expect(Config.fromProvided).toBeCalled();
-            expect(Config.fromEnv).toBeCalled();
-            expect(Config.fromFile).toBeCalled();
+            expect(Config._fromProvided).toBeCalled();
+            expect(Config._fromEnv).toBeCalled();
+            expect(Config.fromCodefreshConfig).toBeCalled();
         });
 
         it('should throw when could not load from file', async () => {
-            Config.fromProvided = jest.fn(() => {
+            Config._fromProvided = jest.fn(() => {
                 throw new Error();
             });
-            Config.fromEnv = jest.fn(() => {
+            Config._fromEnv = jest.fn(() => {
                 throw new Error();
             });
-            Config.fromFile = jest.fn(() => {
+            Config.fromCodefreshConfig = jest.fn(() => {
                 throw new Error();
             });
 
             await expectThrows(async () => { // eslint-disable-line
-                await Config.autoDetect();
+                await Config.load();
             });
 
-            expect(Config.fromProvided).toBeCalled();
-            expect(Config.fromEnv).toBeCalled();
-            expect(Config.fromFile).toBeCalled();
-        });
-    });
-
-    describe('#manager()', () => {
-        it('should provide instance of config manager', async () => {
-            const config = await Config.fromProvided({ apiKey: 'apiKey' });
-
-            expect(config.manager()).toBe(manager);
+            expect(Config._fromProvided).toBeCalled();
+            expect(Config._fromEnv).toBeCalled();
+            expect(Config.fromCodefreshConfig).toBeCalled();
         });
     });
 
     describe('Config.manager()', () => {
         it('should provide instance of config manager', async () => {
             expect(Config.manager()).toBe(manager);
-
-        });
-    });
-
-    describe('#recreate()', () => {
-        it('should be able to "recreate" itself', async () => {
-            const config = await Config.fromProvided({ apiKey: 'apiKey' });
-            const newConfig = await config.recreate();
-
-            expect(config.options).toEqual(newConfig.options);
         });
     });
 });

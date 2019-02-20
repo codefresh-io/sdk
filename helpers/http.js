@@ -25,7 +25,7 @@ const Http = (options) => {
     const {
         baseUrl,
         timeout,
-        maxRetries,
+        maxAttempts,
         retryDelay,
         retryStrategy,
         headers,
@@ -33,7 +33,7 @@ const Http = (options) => {
 
     const config = {
         timeout: timeout || defaults.TIMEOUT,
-        maxAttempts: maxRetries || defaults.MAX_RETRIES,
+        maxAttempts: maxAttempts || defaults.MAX_RETRIES,
         retryDelay: retryDelay || defaults.RETRY_DELAY,
         retryStrategy: retryStrategy || RETRY_STRATEGY,
         headers: headers || {},
