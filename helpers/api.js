@@ -14,7 +14,7 @@ function _generateSwaggerOps(spec) {
     return ops;
 }
 
-function _resolveArgs(args, spec) {
+function _resolveArgs(args, spec = {}) {
     let [params, requestBody] = args; // eslint-disable-line prefer-const
     if (!params) {
         if (!requestBody) {
@@ -56,7 +56,7 @@ function _wrapHandler(func, spec) {
         if (!_.isEmpty(params)) {
             _.set(args, '[0]', _.mapValues(params, (value, key) => {
                 if (_.isPlainObject(value)) {
-                    return _serializeObjectAsQueryParam(value, key)
+                    return _serializeObjectAsQueryParam(value, key);
                 }
                 return value;
             }));
@@ -74,7 +74,7 @@ function postProcessApi(swagger, spec) {
     const ops = _generateSwaggerOps(swagger.spec);
     const apis = _.reduce(swagger.apis, (acc, resource) => {
         const temp = _.reduce(resource, (acc, operation, operationId) => { // eslint-disable-line
-            const op = ops[operationId];
+            const op = _.get(ops, operationId, {});
             const methodSpec = _.get(spec, `paths.${op.url}.${op.httpMethod}`);
             if (!methodSpec || !methodSpec['x-sdk-interface']) {
                 return acc;
@@ -91,4 +91,8 @@ function postProcessApi(swagger, spec) {
     return apis;
 }
 
-module.exports = { postProcessApi };
+module.exports = {
+    postProcessApi,
+    _resolveArgs,
+    _wrapHandler,
+};

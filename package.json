@@ -57,7 +57,9 @@
       "defaults.js",
       "/lib/logic/",
       "/lib/auth/contexts",
-      "/lib/helpers/cache"
+      "/helpers/cache.js",
+      "/helpers/jwt.js",
+      "/helpers/error.js"
     ],
     "coverageThreshold": {
       "global": {
