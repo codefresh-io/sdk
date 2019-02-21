@@ -6,7 +6,7 @@ const { Config } = require('../index');
 const { createContext } = require('../helpers/context');
 const { Http } = require('../helpers/http');
 
-const { manager, contexts } = require('../lib/auth');
+const { ConfigManager, contexts } = require('../lib/auth');
 const defaults = require('../lib/defaults');
 
 jest.mock('../helpers/context', () => { // eslint-disable-line
@@ -24,6 +24,24 @@ jest.mock('../helpers/http', () => {
     };
     httpConstructor.__getClient = () => http;
     return { Http: httpConstructor };
+});
+
+jest.mock('../lib/auth/ConfigManager', () => {
+    const instance = {};
+    class Manager {
+        static __getInstance() {
+            return instance;
+        }
+    }
+    instance.loadConfig = jest.fn();
+    instance.hasContexts = jest.fn(() => true);
+    instance.getCurrentContext = jest.fn(() => ({}));
+    instance.getContextByName = jest.fn(() => ({}));
+    return new Proxy(Manager, {
+        construct() {
+            return instance;
+        },
+    });
 });
 
 const originalInitializeConfig = Config._initializeConfig;
@@ -78,7 +96,10 @@ describe('Config', () => {
             await Config._fromProvided(options);
 
             expect(createContext).lastCalledWith(options.apiKey, defaults.URL);
-            expect(Config._initializeConfig).lastCalledWith(expect.objectContaining({ token: options.apiKey, url: defaults.URL }), options);
+            expect(Config._initializeConfig).lastCalledWith(expect.objectContaining({
+                token: options.apiKey,
+                url: defaults.URL,
+            }), options);
         });
 
         it('should continue processing when api key and url are provided', async () => {
@@ -86,7 +107,10 @@ describe('Config', () => {
             await Config._fromProvided(options);
 
             expect(createContext).lastCalledWith(options.apiKey, options.url);
-            expect(Config._initializeConfig).lastCalledWith(expect.objectContaining({ token: options.apiKey, url: options.url }), options);
+            expect(Config._initializeConfig).lastCalledWith(expect.objectContaining({
+                token: options.apiKey,
+                url: options.url,
+            }), options);
         });
     });
 
@@ -144,56 +168,58 @@ describe('Config', () => {
     });
 
     describe('#fromCodefreshConfig()', () => {
+        const managerInstance = ConfigManager.__getInstance();
+
         beforeEach(() => {
             Config._initializeConfig = jest.fn((context, options) => ({ context, options }));
-            manager.loadConfig = jest.fn();
-            manager.hasContexts = jest.fn(() => true);
-            manager.getCurrentContext = jest.fn(() => ({}));
-            manager.getContextByName = jest.fn(() => ({}));
+            managerInstance.loadConfig = jest.fn();
+            managerInstance.hasContexts = jest.fn(() => true);
+            managerInstance.getCurrentContext = jest.fn(() => ({}));
+            managerInstance.getContextByName = jest.fn(() => ({}));
         });
 
         it('should load config from default path when not specified', async () => {
             const options = {};
             await Config.fromCodefreshConfig(options);
-            expect(manager.loadConfig).toBeCalledWith(defaults.CF_CONFIG_PATH);
+            expect(managerInstance.loadConfig).toBeCalledWith(defaults.CF_CONFIG_PATH);
         });
 
         it('should load config form path at process.env.CFCONFIG', async () => {
             process.env[defaults.CF_CONFIG_ENV] = 'path';
             const options = {};
             await Config.fromCodefreshConfig(options);
-            expect(manager.loadConfig).toBeCalledWith(process.env[defaults.CF_CONFIG_ENV]);
+            expect(managerInstance.loadConfig).toBeCalledWith(process.env[defaults.CF_CONFIG_ENV]);
         });
 
         it('should load config from specific path when provided', async () => {
             const options = { configPath: 'path' };
             await Config.fromCodefreshConfig(options);
-            expect(manager.loadConfig).toBeCalledWith(options.configPath);
+            expect(managerInstance.loadConfig).toBeCalledWith(options.configPath);
         });
 
         it('should throw on no such context', async () => {
-            manager.getContextByName = jest.fn(() => null);
+            managerInstance.getContextByName = jest.fn(() => null);
             const options = { context: 'not-existing' };
 
             await expectThrows(async () => { // eslint-disable-line
                 await Config.fromCodefreshConfig(options);
             });
 
-            expect(manager.loadConfig).toBeCalled();
-            expect(manager.getContextByName).toBeCalledWith(options.context);
+            expect(managerInstance.loadConfig).toBeCalled();
+            expect(managerInstance.getContextByName).toBeCalledWith(options.context);
             expect(Config._initializeConfig).not.toBeCalled();
         });
 
         it('should throw on no current context', async () => {
-            manager.getCurrentContext = jest.fn(() => null);
+            managerInstance.getCurrentContext = jest.fn(() => null);
             const options = {};
 
             await expectThrows(async () => { // eslint-disable-line
                 await Config.fromCodefreshConfig(options);
             });
 
-            expect(manager.loadConfig).toBeCalled();
-            expect(manager.getCurrentContext).toBeCalled();
+            expect(managerInstance.loadConfig).toBeCalled();
+            expect(managerInstance.getCurrentContext).toBeCalled();
             expect(Config._initializeConfig).not.toBeCalled();
         });
 
@@ -211,14 +237,14 @@ describe('Config', () => {
         });
 
         it('should not get current context when getting by name', async () => {
-            manager.getContextByName = jest.fn(() => ({}));
+            managerInstance.getContextByName = jest.fn(() => ({}));
             const options = { context: 'exising' };
 
             await Config.fromCodefreshConfig(options);
 
-            expect(manager.loadConfig).toBeCalled();
-            expect(manager.getContextByName).toBeCalledWith(options.context);
-            expect(manager.getCurrentContext).not.toBeCalled();
+            expect(managerInstance.loadConfig).toBeCalled();
+            expect(managerInstance.getContextByName).toBeCalledWith(options.context);
+            expect(managerInstance.getCurrentContext).not.toBeCalled();
             expect(Config._initializeConfig).toBeCalled();
         });
 
@@ -227,20 +253,20 @@ describe('Config', () => {
 
             await Config.fromCodefreshConfig(options);
 
-            expect(manager.loadConfig).toBeCalled();
-            expect(manager.getContextByName).not.toBeCalled();
-            expect(manager.getCurrentContext).toBeCalled();
+            expect(managerInstance.loadConfig).toBeCalled();
+            expect(managerInstance.getContextByName).not.toBeCalled();
+            expect(managerInstance.getCurrentContext).toBeCalled();
             expect(Config._initializeConfig).toBeCalled();
         });
 
         it('should use NoAuthContext when no contexts are at file with default url (when not provided)', async () => {
-            manager.hasContexts = jest.fn(() => false);
+            managerInstance.hasContexts = jest.fn(() => false);
             const options = {};
 
             const config = await Config.fromCodefreshConfig(options);
 
-            expect(manager.loadConfig).toBeCalled();
-            expect(manager.hasContexts).toBeCalled();
+            expect(managerInstance.loadConfig).toBeCalled();
+            expect(managerInstance.hasContexts).toBeCalled();
             expect(Config._initializeConfig).toBeCalled();
 
             expect(config.context).not.toBeNull();
@@ -249,13 +275,13 @@ describe('Config', () => {
         });
 
         it('should use NoAuthContext when no contexts are at file with specific url (when provided)', async () => {
-            manager.hasContexts = jest.fn(() => false);
+            managerInstance.hasContexts = jest.fn(() => false);
             const options = { url: 'url' };
 
             const config = await Config.fromCodefreshConfig(options);
 
-            expect(manager.loadConfig).toBeCalled();
-            expect(manager.hasContexts).toBeCalled();
+            expect(managerInstance.loadConfig).toBeCalled();
+            expect(managerInstance.hasContexts).toBeCalled();
             expect(Config._initializeConfig).toBeCalled();
 
             expect(config.context).not.toBeNull();
@@ -486,8 +512,8 @@ describe('Config', () => {
     });
 
     describe('Config.manager()', () => {
-        it('should provide instance of config manager', async () => {
-            expect(Config.manager()).toBe(manager);
+        it('should provide the same instance of ConfigManager', async () => {
+            expect(Config.manager()).toBe(Config.manager());
         });
     });
 });
