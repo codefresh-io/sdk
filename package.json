@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Codefresh_api_swagger_3_0_specification",
   "main": "index.js",
+  "author": {
+    "name": "Yaroslav Drachenko",
+    "email": "yaroslav@codefresh.io"
+  },
   "scripts": {
     "test": "jest --coverage --runInBand",
     "eslint": "eslint lib/** helpers/** __tests__",
@@ -52,7 +56,8 @@
       "test-setup.js",
       "defaults.js",
       "/lib/logic/",
-      "/lib/auth/contexts"
+      "/lib/auth/contexts",
+      "/lib/helpers/cache"
     ],
     "coverageThreshold": {
       "global": {

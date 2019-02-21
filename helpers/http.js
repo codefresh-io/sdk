@@ -48,7 +48,7 @@ const Http = (options) => {
             const req = _.first(args) || {};
             debug(`${req.method || 'GET'} ${req.url}`);
 
-            if (baseUrl && _.startsWith(req.url, '/')) {
+            if (_.startsWith(req.url, '/') && baseUrl) {
                 req.url = `${baseUrl}${req.url}`;
             }
             const response = await handler(...args);

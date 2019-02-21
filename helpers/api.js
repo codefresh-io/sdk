@@ -42,9 +42,26 @@ function _resolveArgs(args, spec) {
     return [params];
 }
 
+/**
+ * @returns {Object} example: { 'data[name]': val, 'data[surname]': val2 }
+ * */
+function _serializeObjectAsQueryParam(object, paramName) {
+    return _.mapKeys(object, (value, key) => `${paramName}[${key}]`);
+}
+
 function _wrapHandler(func, spec) {
     const wrapper = function () { // eslint-disable-line
-        return func(..._resolveArgs(arguments, spec)); // eslint-disable-line
+        const args = _resolveArgs(arguments, spec); // eslint-disable-line
+        const params = _.first(args);
+        if (!_.isEmpty(params)) {
+            _.set(args, '[0]', _.mapValues(params, (value, key) => {
+                if (_.isPlainObject(value)) {
+                    return _serializeObjectAsQueryParam(value, key)
+                }
+                return value;
+            }));
+        }
+        return func(...args);
     };
     wrapper.spec = () => spec;
     return wrapper;
