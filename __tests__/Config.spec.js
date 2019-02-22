@@ -32,7 +32,8 @@ jest.mock('../lib/auth/ConfigManager', () => {
     instance.hasContexts = jest.fn(() => true);
     instance.getCurrentContext = jest.fn(() => ({}));
     instance.getContextByName = jest.fn(() => ({}));
-    instance.createContext = jest.fn((token, url, name) => ({ token, url, name, prepareHttpOptions: () => ({}) }));
+    instance.createContext = jest.fn(({ apiKey: token, url, name }) => ({ token, url, name, prepareHttpOptions: () => ({}) }));
+
     return new Proxy(Manager, {
         construct() {
             return instance;
@@ -63,17 +64,14 @@ describe('Config', () => {
 
         it('should throw on apiKey not provided', async () => {
             const options = { apiKey: undefined };
-            await expectThrows(async () => { // eslint-disable-line
-                await Config._fromProvided(options);
-            });
+
+            await expect(Config._fromProvided(options)).rejects.toThrow(CFError);
             expect(Config._initializeConfig).not.toBeCalled();
         });
 
         it('should throw on url being null', async () => {
             const options = { apiKey: 'api key', url: null };
-            await expectThrows(async () => { // eslint-disable-line
-                await Config._fromProvided(options);
-            });
+            await expect(Config._fromProvided(options)).rejects.toThrow(CFError);
             expect(Config._initializeConfig).not.toBeCalled();
         });
 
@@ -83,9 +81,7 @@ describe('Config', () => {
                 throw new Error();
             });
 
-            await expectThrows(async () => { // eslint-disable-line
-                await Config._fromProvided(options);
-            }, CFError);
+            await expect(Config._fromProvided(options)).rejects.toThrow(CFError);
             expect(Config._initializeConfig).toBeCalled();
         });
 
@@ -93,7 +89,7 @@ describe('Config', () => {
             const options = { apiKey: 'api key' };
             await Config._fromProvided(options);
 
-            expect(CONFIG_MANAGER.createContext).lastCalledWith(options.apiKey, defaults.URL);
+            expect(CONFIG_MANAGER.createContext).lastCalledWith({ apiKey: options.apiKey, url: defaults.URL });
             expect(Config._initializeConfig).lastCalledWith(expect.objectContaining({
                 token: options.apiKey,
                 url: defaults.URL,
@@ -104,7 +100,7 @@ describe('Config', () => {
             const options = { apiKey: 'api key', url: 'url' };
             await Config._fromProvided(options);
 
-            expect(CONFIG_MANAGER.createContext).lastCalledWith(options.apiKey, options.url);
+            expect(CONFIG_MANAGER.createContext).lastCalledWith({ apiKey: options.apiKey, url: options.url });
             expect(Config._initializeConfig).lastCalledWith(expect.objectContaining({
                 token: options.apiKey,
                 url: options.url,
@@ -123,9 +119,7 @@ describe('Config', () => {
 
         it('should throw on apiKey not provided at process.env.CF_API_KEY', async () => {
             const options = {};
-            await expectThrows(async () => { // eslint-disable-line
-                await Config._fromEnv(options);
-            });
+            await expect(Config._fromEnv(options)).rejects.toThrow(CFError);
             expect(Config._fromProvided).not.toBeCalled();
         });
 
@@ -136,9 +130,7 @@ describe('Config', () => {
                 throw new Error();
             });
 
-            await expectThrows(async () => { // eslint-disable-line
-                await Config._fromEnv(options);
-            }, CFError);
+            await expect(Config._fromEnv(options)).rejects.toThrow(CFError);
             expect(Config._fromProvided).toBeCalled();
         });
 
@@ -177,29 +169,27 @@ describe('Config', () => {
         it('should load config from default path when not specified', async () => {
             const options = {};
             await Config.fromCodefreshConfig(options);
-            expect(CONFIG_MANAGER.loadConfig).toBeCalledWith(defaults.CF_CONFIG_PATH);
+            expect(CONFIG_MANAGER.loadConfig).toBeCalledWith({ configFilePath: defaults.CF_CONFIG_PATH });
         });
 
         it('should load config form path at process.env.CFCONFIG', async () => {
             process.env[defaults.CF_CONFIG_ENV] = 'path';
             const options = {};
             await Config.fromCodefreshConfig(options);
-            expect(CONFIG_MANAGER.loadConfig).toBeCalledWith(process.env[defaults.CF_CONFIG_ENV]);
+            expect(CONFIG_MANAGER.loadConfig).toBeCalledWith({ configFilePath: process.env[defaults.CF_CONFIG_ENV] });
         });
 
         it('should load config from specific path when provided', async () => {
             const options = { configPath: 'path' };
             await Config.fromCodefreshConfig(options);
-            expect(CONFIG_MANAGER.loadConfig).toBeCalledWith(options.configPath);
+            expect(CONFIG_MANAGER.loadConfig).toBeCalledWith({ configFilePath: options.configPath });
         });
 
         it('should throw on no such context', async () => {
             CONFIG_MANAGER.getContextByName = jest.fn(() => null);
             const options = { context: 'not-existing' };
 
-            await expectThrows(async () => { // eslint-disable-line
-                await Config.fromCodefreshConfig(options);
-            });
+            await expect(Config.fromCodefreshConfig(options)).rejects.toThrow(CFError);
 
             expect(CONFIG_MANAGER.loadConfig).toBeCalled();
             expect(CONFIG_MANAGER.getContextByName).toBeCalledWith(options.context);
@@ -210,9 +200,7 @@ describe('Config', () => {
             CONFIG_MANAGER.getCurrentContext = jest.fn(() => null);
             const options = {};
 
-            await expectThrows(async () => { // eslint-disable-line
-                await Config.fromCodefreshConfig(options);
-            });
+            await expect(Config.fromCodefreshConfig(options)).rejects.toThrow(CFError);
 
             expect(CONFIG_MANAGER.loadConfig).toBeCalled();
             expect(CONFIG_MANAGER.getCurrentContext).toBeCalled();
@@ -226,9 +214,7 @@ describe('Config', () => {
                 throw new Error();
             });
 
-            await expectThrows(async () => { // eslint-disable-line
-                await Config.fromCodefreshConfig(options);
-            }, CFError);
+            await expect(Config.fromCodefreshConfig(options)).rejects.toThrow(CFError);
             expect(Config._initializeConfig).toBeCalled();
         });
 
@@ -297,9 +283,7 @@ describe('Config', () => {
             const context = null;
             const options = {};
 
-            await expectThrows(async () => { // eslint-disable-line
-                await Config._initializeConfig(context, options);
-            });
+            await expect(Config._initializeConfig(context, options)).rejects.toThrow(CFError);
             expect(Http).not.toBeCalled();
         });
 
@@ -497,9 +481,7 @@ describe('Config', () => {
                 throw new Error();
             });
 
-            await expectThrows(async () => { // eslint-disable-line
-                await Config.load();
-            });
+            await expect(Config.load()).rejects.toThrow(CFError);
 
             expect(Config._fromProvided).toBeCalled();
             expect(Config._fromEnv).toBeCalled();

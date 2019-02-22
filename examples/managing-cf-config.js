@@ -10,18 +10,18 @@ async function main() {
         await manager.loadConfig();
 
         // load from specific path: $HOME/.cfconfig
-        await manager.loadConfig('some/path/.cfconfig');
+        await manager.loadConfig({ configFilePath: 'some/path/.cfconfig' });
 
         // second time config is loaded from cache if path didn't change
-        await manager.loadConfig('some/path/.cfconfig');
+        await manager.loadConfig({ configFilePath: 'some/path/.cfconfig' });
 
         // or you can force load config
-        await manager.loadConfig('some/path/.cfconfig', true);
+        await manager.loadConfig({ configFilePath: 'some/path/.cfconfig', forceLoad: true });
     }
 
 
     // creating context
-    const context = await manager.createContext('API_KEY', 'http://local.codefresh.io', 'test');
+    const context = await manager.createContext({ apiKey: 'API_KEY', url: 'http://local.codefresh.io', name: 'test' });
     manager.addContext(context);
     await manager.persistConfig();
 
