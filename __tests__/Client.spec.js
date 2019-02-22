@@ -2,7 +2,7 @@ const Client = require('../lib/Client');
 
 describe('Client', () => {
     describe('loading', () => {
-        it('should throw on swagger or spec missing', async () => {
+        it('should throw on swagger missing', async () => {
             expect(() => {
                 new Client({ config: {} }); // eslint-disable-line
             }).toThrow();
