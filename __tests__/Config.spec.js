@@ -119,12 +119,13 @@ describe('Config', () => {
 
         it('should throw on apiKey not provided at process.env.CF_API_KEY', async () => {
             const options = {};
+            delete process.env[defaults.CF_TOKEN_ENV];
             await expect(Config._fromEnv(options)).rejects.toThrow(CFError);
             expect(Config._fromProvided).not.toBeCalled();
         });
 
         it('should rethrow if something breaks at following operations', async () => {
-            process.env.CF_API_KEY = 'apiKey';
+            process.env[defaults.CF_TOKEN_ENV] = 'apiKey';
             const options = {};
             Config._fromProvided = jest.fn(() => {
                 throw new Error();
@@ -136,7 +137,8 @@ describe('Config', () => {
 
         it('should continue processing when process.env.CF_API_KEY is provided', async () => {
             const testApiKey = 'api key';
-            process.env.CF_API_KEY = testApiKey;
+            process.env[defaults.CF_TOKEN_ENV] = testApiKey;
+            delete process.env[defaults.CF_URL_ENV];
             const options = {};
             await Config._fromEnv(options);
 
@@ -147,8 +149,8 @@ describe('Config', () => {
             const testUrl = 'url';
             const testApiKey = 'api key';
 
-            process.env.CF_API_KEY = testApiKey;
-            process.env.CF_URL = testUrl;
+            process.env[defaults.CF_TOKEN_ENV] = testApiKey;
+            process.env[defaults.CF_URL_ENV] = testUrl;
 
             const options = {};
             await Config._fromEnv(options);
@@ -208,7 +210,7 @@ describe('Config', () => {
         });
 
         it('should rethrow if something breaks at following operations', async () => {
-            process.env.CF_API_KEY = 'apiKey';
+            process.env[defaults.CF_TOKEN_ENV] = 'apiKey';
             const options = {};
             Config._initializeConfig = jest.fn(() => {
                 throw new Error();
