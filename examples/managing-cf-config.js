@@ -21,7 +21,7 @@ async function main() {
 
 
     // creating context
-    const context = await manager.createContext({ apiKey: 'API_KEY', url: 'http://local.codefresh.io', name: 'test' });
+    const context = await manager.createContext({ apiKey: process.env.CF_API_TOKEN, url: 'http://local.codefresh.io', name: 'test' });
     manager.addContext(context);
     await manager.persistConfig();
 
