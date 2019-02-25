@@ -66,7 +66,7 @@ describe('ConfigManager', () => {
             const configFilePath = 'some/path';
             await manager._loadConfig(configFilePath);
 
-            expect(fs._readFile).toBeCalledWith(configFilePath, 'utf8');
+            expect(fs._readFile).toBeCalledWith(path.resolve(configFilePath), 'utf8');
         });
 
         it('should create file when it does not exist and write empty config to it', async () => {
