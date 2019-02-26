@@ -15,19 +15,19 @@ function handleErrors(response) {
     if (statusCode >= 300 && statusCode < 400) {
         throw new CFError({
             cause: _makeResponseError(response),
-            message: 'Error: Request was not properly redirected',
+            message: 'Request was not properly redirected',
         });
     }
     if (statusCode === 401) {
         throw new CFError({
             cause: _makeResponseError(response),
-            message: 'Error: Please create or update your authentication context',
+            message: 'Please create or update your authentication context',
         });
     }
     if (statusCode === 403) {
         throw new CFError({
             cause: _makeResponseError(response),
-            message: 'Error: You do not have permissions to perform this action',
+            message: 'You do not have permissions to perform this action',
         });
     }
 

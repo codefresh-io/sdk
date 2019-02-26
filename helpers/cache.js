@@ -23,6 +23,7 @@ async function _downloadSpec(url) {
 }
 
 /**
+ * TODO : rework later, when openapi.json versions on cf-api are implemented
  * loads spec either from filesystem cache or from url:
  * 1) cache lifetime - 1 day
  * 2) use forceRefresh in order to refresh cache anyway
