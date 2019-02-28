@@ -13,7 +13,7 @@
     "ci-publish": "ci-publish"
   },
   "engines": {
-    "node": ">=9.0.0"
+    "node": ">=8.0.0"
   },
   "dependencies": {
     "bluebird": "^3.5.3",
