@@ -234,14 +234,14 @@ describe('helpers', () => {
 
         it('should retry on 502, 503, 504', async () => {
             _.set(request, 'RetryStrategies.NetworkError', () => false);
-            expect(Http.RETRY_STRATEGY({}, { statusCode: 502 })).toBeTruthy();
-            expect(Http.RETRY_STRATEGY({}, { statusCode: 503 })).toBeTruthy();
-            expect(Http.RETRY_STRATEGY({}, { statusCode: 504 })).toBeTruthy();
+            expect(Http.RETRY_STRATEGY(null, { statusCode: 502 })).toBeTruthy();
+            expect(Http.RETRY_STRATEGY(null, { statusCode: 503 })).toBeTruthy();
+            expect(Http.RETRY_STRATEGY(null, { statusCode: 504 })).toBeTruthy();
         });
 
         it('should retry on network error', async () => {
             _.set(request, 'RetryStrategies.NetworkError', () => true);
-            expect(Http.RETRY_STRATEGY({}, {})).toBeTruthy();
+            expect(Http.RETRY_STRATEGY({}, null)).toBeTruthy();
         });
 
         it('should not retry in debug mode', async () => {

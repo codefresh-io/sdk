@@ -6,7 +6,16 @@ const defaults = require('../lib/defaults');
 const { handleErrors } = require('../helpers/error');
 
 const RETRY_STATUS_CODES = [502, 503, 504];
-const RETRY_STRATEGY = (err, response) => !(process.env.DEBUG || '').startsWith(defaults.DEBUG_PATTERN) && (request.RetryStrategies.NetworkError(err) || RETRY_STATUS_CODES.includes(response.statusCode)); // eslint-disable-line max-len
+const RETRY_STRATEGY = (err, response) => {
+    if ((process.env.DEBUG || '').startsWith(defaults.DEBUG_PATTERN)) {
+        return false;
+    }
+    if (err) {
+        debug('error: %o', err);
+        return request.RetryStrategies.NetworkError(err);
+    }
+    return RETRY_STATUS_CODES.includes(response.statusCode);
+};
 
 function _hideHeaders(config) {
     const _config = _.cloneDeep(config);
