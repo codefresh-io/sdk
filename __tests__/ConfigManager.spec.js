@@ -1,4 +1,5 @@
 const fs = require('fs');
+const fse = require('fs-extra');
 const yaml = require('js-yaml');
 const CFError = require('cf-errors');
 const path = require('path');
@@ -16,14 +17,13 @@ jest.mock('fs', () => {
     mock.readFile = function readFile() {
         return this._readFile(...arguments); // eslint-disable-line
     }.bind(mock);
-    mock.mkdir = function readFile() {
-        return this._mkdir(...arguments); // eslint-disable-line
-    }.bind(mock);
     mock.writeFile = function readFile() {
         return this._writeFile(...arguments); // eslint-disable-line
     }.bind(mock);
     return mock;
 });
+
+jest.mock('fs-extra', () => ({ mkdirp: jest.fn() }));
 
 jest.mock('bluebird', () => ({ promisify: func => func }));
 
@@ -44,13 +44,12 @@ const CONTEXTS = {
 };
 
 
-// todo : finish
 describe('ConfigManager', () => {
     beforeEach(() => {
         const testData = { test: 'test' };
         fs._readFile = jest.fn(() => testData);
-        fs._mkdir = jest.fn();
         fs._writeFile = jest.fn();
+        fse.mkdirp.mockClear()
         yaml.safeDump = jest.fn(data => data);
         yaml.safeLoad = jest.fn(data => data);
     });
@@ -81,7 +80,7 @@ describe('ConfigManager', () => {
             await manager._loadConfig();
 
             expect(fs._readFile).toBeCalled();
-            expect(fs._mkdir).toBeCalledWith(path.dirname(defaults.CF_CONFIG_PATH), { recursive: true });
+            expect(fse.mkdirp).toBeCalledWith(path.dirname(defaults.CF_CONFIG_PATH));
             expect(fs._writeFile).toBeCalledWith(defaults.CF_CONFIG_PATH, emptyConfig, 'utf8');
         });
 
@@ -112,7 +111,7 @@ describe('ConfigManager', () => {
 
             expect(fs._readFile).toBeCalled();
             expect(config).toEqual(fs._readFile()); // equals mock data
-            expect(fs._mkdir).not.toBeCalled();
+            expect(fse.mkdirp).not.toBeCalled();
             expect(fs._writeFile).not.toBeCalled();
         });
     });
