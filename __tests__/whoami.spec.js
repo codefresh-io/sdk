@@ -1,6 +1,3 @@
-/* eslint-disable */
-
-const context = require('../lib/auth'); // eslint-disable-line
 const { whoami } = require('../lib/auth/contexts/whoami');
 const { APIKeyContext } = require('../lib/auth/contexts');
 const { Http } = require('../helpers/http');
@@ -30,13 +27,13 @@ jest.mock('../helpers/http', () => {
         return response();
     };
 
-    const Http = () => http;
+    const HttpConstructor = () => http;
 
-    Http.__setResponse = __setResponse;
-    Http.__setValidateParams = __setValidateParams;
-    Http.__reset = __reset;
+    HttpConstructor.__setResponse = __setResponse;
+    HttpConstructor.__setValidateParams = __setValidateParams;
+    HttpConstructor.__reset = __reset;
 
-    return { Http };
+    return { Http: HttpConstructor };
 });
 
 
@@ -59,9 +56,7 @@ describe('whoami', () => {
                 .toEqual({
                     method: 'GET',
                     url: `${testUrl}/api/user`,
-                    headers: {
-                        Authorization: testToken,
-                    }
+                    headers: { Authorization: testToken },
                 });
         });
 
@@ -74,15 +69,13 @@ describe('whoami', () => {
             name: 'account-name-2',
             runtimeEnvironment: 'runtime-environment-2',
         };
-        Http.__setResponse(() => {
-            return {
-                activeAccountName,
-                account: [
-                    firstAccount,
-                    secondAccount,
-                ],
-            };
-        });
+        Http.__setResponse(() => ({
+            activeAccountName,
+            account: [
+                firstAccount,
+                secondAccount,
+            ],
+        }));
 
         const accountInfo = await whoami(context);
         expect(accountInfo).toEqual(firstAccount);
@@ -96,9 +89,7 @@ describe('whoami', () => {
         });
 
         const response = { test: 'test' };
-        Http.__setResponse(() => {
-            return response;
-        });
+        Http.__setResponse(() => response);
 
         const accountInfo = await whoami(context, true);
         expect(accountInfo).toEqual(response);
@@ -112,9 +103,7 @@ describe('whoami', () => {
         });
 
         const response = { test: 'test' };
-        Http.__setResponse(() => {
-            return response;
-        });
+        Http.__setResponse(() => response);
 
         const accountInfo = await whoami(context);
         expect(accountInfo).toEqual({});
@@ -131,6 +120,6 @@ describe('whoami', () => {
             throw new Error('http request error');
         });
 
-        await expect(whoami(context)).rejects.toThrow('http request error')
+        await expect(whoami(context)).rejects.toThrow('http request error');
     });
 });
