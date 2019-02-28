@@ -49,7 +49,7 @@ describe('ConfigManager', () => {
         const testData = { test: 'test' };
         fs._readFile = jest.fn(() => testData);
         fs._writeFile = jest.fn();
-        fse.mkdirp.mockClear()
+        fse.mkdirp.mockClear();
         yaml.safeDump = jest.fn(data => data);
         yaml.safeLoad = jest.fn(data => data);
     });
