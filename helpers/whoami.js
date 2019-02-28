@@ -1,22 +1,30 @@
 const _ = require('lodash');
 const debug = require('debug')('codefresh:sdk:auth:whoami');
 
-const { Http } = require('../../../helpers/http');
+const { Http } = require('./http');
 
 const http = Http();
 
-const whoami = async (context, fullUser = false) => {
-    debug(`context is ${context} for ${context.name}`);
+const getUser = async (context, options = {}) => {
+    debug(`loading context -- ${context}`);
     const userOptions = {
         url: `${context.url}/api/user`,
         method: 'GET',
+        ...options,
     };
-
     const user = await http(_.merge(userOptions, context.prepareHttpOptions()));
+    debug(`context "${context.name}" successfully loaded`);
+    return user;
+};
 
-    if (fullUser) {
-        return user;
-    }
+/**
+ * This method is used only inside cli for command `codefresh auth get-contexts`
+ * */
+const getCurrentAccount = async (context) => {
+    const user = await getUser(context, {
+        timeout: 5000,
+        retryStrategy: () => false,
+    });
 
     const accounts = _.get(user, 'account', {});
     const accountInfo = _.chain(accounts)
@@ -31,4 +39,4 @@ const whoami = async (context, fullUser = false) => {
     return accountInfo;
 };
 
-module.exports = { whoami };
+module.exports = { getUser, getCurrentAccount };
