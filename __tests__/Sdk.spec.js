@@ -11,8 +11,9 @@ jest.mock('fs', () => ({
     ],
     readFile: () => ({}),
     writeFile: () => ({}),
-    mkdir: () => ({}),
 }));
+
+jest.mock('fs-extra', () => ({ mkdirp: () => ({}) }));
 
 jest.mock('../lib/logic/clusters.logic.js');
 jest.mock('../lib/logic/workflows.logic.js');

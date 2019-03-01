@@ -7,11 +7,10 @@ const http = Http();
 
 const getUser = async (context, options = {}) => {
     debug(`loading context -- ${context}`);
-    const userOptions = {
+    const userOptions = _.defaultsDeep({
         url: `${context.url}/api/user`,
         method: 'GET',
-        ...options,
-    };
+    }, options);
     const user = await http(_.merge(userOptions, context.prepareHttpOptions()));
     debug(`context "${context.name}" successfully loaded`);
     return user;
