@@ -353,7 +353,7 @@ describe('Config', () => {
             const options = {};
             await Config._initializeConfig(context, options);
 
-            expect(Http.__getClient()).toBeCalledWith({ url: `${context.url}${defaults.SPEC_URL_SUFFIX}`, disableFilter: '' });
+            expect(Http.__getClient()).toBeCalledWith({ url: `${context.url}${defaults.SPEC_URL_SUFFIX}`, qs: { disableFilter: '' } });
             expect(options.spec.json).toEqual(loadedSpec);
         });
 
@@ -367,7 +367,7 @@ describe('Config', () => {
             const options = { spec: { url: 'url' } };
             await Config._initializeConfig(context, options);
 
-            expect(Http.__getClient()).toBeCalledWith({ url: options.spec.url, disableFilter: '' });
+            expect(Http.__getClient()).toBeCalledWith({ url: options.spec.url, qs: { disableFilter: '' } });
             expect(options.spec.json).toEqual(loadedSpec);
         });
 
