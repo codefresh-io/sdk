@@ -42,20 +42,20 @@ const Http = (options) => {
     } = options || {};
 
     const config = {
-        timeout: timeout || defaults.TIMEOUT,
-        maxAttempts: maxAttempts || defaults.MAX_RETRIES,
-        retryDelay: retryDelay || defaults.RETRY_DELAY,
-        retryStrategy: retryStrategy || RETRY_STRATEGY,
+        timeout: _.isInteger(timeout) ? timeout : defaults.TIMEOUT,
+        maxAttempts: _.isInteger(maxAttempts) ? maxAttempts : defaults.MAX_RETRIES,
+        retryDelay: _.isInteger(retryDelay) ? retryDelay : defaults.RETRY_DELAY,
+        retryStrategy: _.isFunction(retryStrategy) ? retryStrategy : RETRY_STRATEGY,
         headers: headers || {},
     };
 
-    const http = request.defaults(config);
-
+    request.config = config;
     debug('http created: %o', _hideHeaders(config));
 
-    return new Proxy(http, {
+    return new Proxy(request, {
         async apply(handler, that, args) {
             const req = _.first(args) || {};
+            _.assign(req, _.defaultsDeep(req, config));
             debug(`${req.method || 'GET'} ${req.url}`);
 
             if (_.startsWith(req.url, '/') && baseUrl) {
