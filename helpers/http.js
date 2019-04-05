@@ -8,6 +8,7 @@ const { handleErrors } = require('../helpers/error');
 const RETRY_STATUS_CODES = [502, 503, 504];
 const RETRY_STRATEGY = (err, response) => {
     if ((process.env.DEBUG || '').startsWith(defaults.DEBUG_PATTERN)) {
+        debug('retry disabled: given DEBUG option');
         return false;
     }
     if (err) {
