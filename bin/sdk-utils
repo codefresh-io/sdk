@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+const _ = require('lodash');
+const path = require('path');
+const CFError = require('cf-errors');
+const columnify = require('columnify');
+
+const { Analyzer, Validator } = require('../lib/utils');
+
+require('yargs')
+    .command('analyze [path]',
+        'analyze for sdk usages',
+        yargs => yargs.positional('path', { default: '.' }),
+        async (argv) => {
+            const sourcesPath = path.resolve(process.cwd(), argv.path);
+            console.log(`Scanning path: ${sourcesPath}`);
+            const usages = await Analyzer.analyzeDir(sourcesPath);
+            console.log('Sdk usages:');
+            _.forEach(usages, u => console.log(u));
+        })
+    .command('validate [path]',
+        'analyze for sdk usages',
+        yargs => yargs
+            .positional('path', { default: '.' })
+            .option('spec', { default: './openapi.json' }),
+        async (argv) => {
+            const sourcesPath = path.resolve(process.cwd(), argv.path);
+            const specPath = path.resolve(process.cwd(), argv.spec);
+
+            console.log(`Scanning path: ${sourcesPath}`);
+            const usages = await Analyzer.analyzeDir(sourcesPath);
+            const errors = await Validator.validate(usages, specPath);
+            if (!_.isEmpty(errors)) {
+                const errorsTable = columnify(errors, { columnSplitter: '  ' });
+                throw new CFError(`Sdk usage validation finished with errors:\n\n${errorsTable}\n\n`);
+            }
+            console.log('Sdk usage validation finished successfully');
+        })
+    .parse();
