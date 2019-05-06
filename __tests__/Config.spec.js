@@ -274,6 +274,23 @@ describe('Config', () => {
         });
     });
 
+    describe('#nonAuthenticated()', () => {
+        beforeEach(() => {
+            Config._initializeConfig = jest.fn((context, options) => ({ context, options }));
+        });
+
+        it('should use NoAuthContext', async () => {
+            CONFIG_MANAGER.hasContexts = jest.fn(() => false);
+            const options = { url: 'url' };
+
+            const config = await Config.nonAuthenticated(options);
+
+            expect(config.context).not.toBeNull();
+            expect(config.context).toBeInstanceOf(contexts.NoAuthContext);
+            expect(config.context.url).toBe(options.url);
+        });
+    });
+
     describe('#_initializeConfig()', () => {
         beforeEach(() => {
             Swagger.mockClear();
