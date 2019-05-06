@@ -158,7 +158,7 @@ describe('helpers', () => {
                 headers: {},
             };
             Http();
-            expect(request.defaults).toBeCalledWith(defaultConfig);
+            expect(request.config).toEqual(defaultConfig);
         });
 
         it('should use provided request options when specified', () => {
@@ -173,7 +173,7 @@ describe('helpers', () => {
                 },
             };
             Http(requestOptions);
-            expect(request.defaults).toBeCalledWith(requestOptions);
+            expect(request.config).toEqual(requestOptions);
         });
 
         it('should not use baseUrl when provided url has host', async () => {
