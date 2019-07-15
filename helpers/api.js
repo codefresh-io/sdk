@@ -76,6 +76,7 @@ function postProcessApi(swagger, spec) {
         const temp = _.reduce(resource, (acc, operation, operationId) => { // eslint-disable-line
             const op = _.get(ops, operationId, {});
             const methodSpec = _.get(spec, `paths.${op.url}.${op.httpMethod}`);
+            _.assign(methodSpec, { url: op.url, method: op.httpMethod });
             if (!methodSpec || !methodSpec['x-sdk-interface']) {
                 return acc;
             }
