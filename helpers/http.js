@@ -2,6 +2,7 @@ const _ = require('lodash');
 const request = require('requestretry');
 const debug = require('debug')('codefresh:sdk:http');
 const defaults = require('../lib/defaults');
+const { version } = require('../package.json');
 
 const { handleErrors } = require('../helpers/error');
 
@@ -38,8 +39,14 @@ const Http = (options) => {
         maxAttempts,
         retryDelay,
         retryStrategy,
-        headers,
+        headers = {},
     } = options || {};
+
+    if (!_.get(headers, 'Codefresh-Agent-Type') || !_.get(headers, 'Codefresh-Agent-Version')) {
+        _.set(headers, 'User-Agent', `codefresh-js-sdk-v${version}`);
+        _.set(headers, 'Codefresh-User-Agent-Type', 'js-sdk');
+        _.set(headers, 'Codefresh-User-Agent-Version', version);
+    }
 
     const config = {
         timeout: _.isInteger(timeout) ? timeout : defaults.TIMEOUT,
