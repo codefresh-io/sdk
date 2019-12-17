@@ -39,7 +39,7 @@ const Http = (options) => {
         maxAttempts,
         retryDelay,
         retryStrategy,
-        headers,
+        headers = {},
     } = options || {};
 
     if (!_.get(headers, 'Codefresh-Agent-Type') || !_.get(headers, 'Codefresh-Agent-Version')) {

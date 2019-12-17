@@ -4,6 +4,7 @@ const defaults = require('../lib/defaults');
 const { postProcessApi, _resolveArgs, _wrapHandler } = require('../helpers/api');
 const { handleErrors } = require('../helpers/error');
 const { Http } = require('../helpers/http');
+const { version } = require('../package');
 
 jest.mock('../helpers/error', () => ({ handleErrors: jest.fn() }));
 
@@ -158,7 +159,31 @@ describe('helpers', () => {
                 headers: {},
             };
             Http();
-            expect(request.config).toEqual(defaultConfig);
+            expect(request.config).toEqual(_.merge(defaultConfig, {
+                headers: {
+                    'Codefresh-User-Agent-Type': 'js-sdk',
+                    'Codefresh-User-Agent-Version': version,
+                    'User-Agent': `codefresh-js-sdk-v${version}`,
+                },
+            }));
+        });
+
+        it('should add codefresh-agent-type header and codefresh-agent-version if they are missing', () => {
+            const defaultConfig = {
+                timeout: defaults.TIMEOUT,
+                maxAttempts: defaults.MAX_RETRIES,
+                retryDelay: defaults.RETRY_DELAY,
+                retryStrategy: Http.RETRY_STRATEGY,
+                headers: { 'my-header': 'key' },
+            };
+            Http();
+            expect(request.config).toEqual(_.merge(defaultConfig, {
+                headers: {
+                    'Codefresh-User-Agent-Type': 'js-sdk',
+                    'Codefresh-User-Agent-Version': version,
+                    'User-Agent': `codefresh-js-sdk-v${version}`,
+                },
+            }));
         });
 
         it('should use provided request options when specified', () => {
@@ -248,6 +273,16 @@ describe('helpers', () => {
             process.env.DEBUG = 'codefresh';
             _.set(request, 'RetryStrategies.NetworkError', () => true);
             expect(Http.RETRY_STRATEGY({}, {})).toBeFalsy();
+        });
+
+        describe('headers', () => {
+            it('should use default headers in case non was passed', () => {
+
+            });
+
+            it('should use passed headers over default values in case was passed', () => {
+
+            });
         });
     });
 });
