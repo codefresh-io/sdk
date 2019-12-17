@@ -176,12 +176,32 @@ describe('helpers', () => {
                 retryStrategy: Http.RETRY_STRATEGY,
                 headers: { 'my-header': 'key' },
             };
-            Http();
+            Http(defaultConfig);
             expect(request.config).toEqual(_.merge(defaultConfig, {
                 headers: {
                     'Codefresh-User-Agent-Type': 'js-sdk',
                     'Codefresh-User-Agent-Version': version,
                     'User-Agent': `codefresh-js-sdk-v${version}`,
+                },
+            }));
+        });
+
+        it('should add codefresh-agent-type header and codefresh-agent-version if they are missing', () => {
+            const defaultConfig = {
+                timeout: defaults.TIMEOUT,
+                maxAttempts: defaults.MAX_RETRIES,
+                retryDelay: defaults.RETRY_DELAY,
+                retryStrategy: Http.RETRY_STRATEGY,
+                headers: {
+                    'Codefresh-User-Agent-Type': 'cli',
+                    'Codefresh-User-Agent-Version': '1.0.0',
+                },
+            };
+            Http(defaultConfig);
+            expect(request.config).toEqual(_.merge(defaultConfig, {
+                headers: {
+                    'Codefresh-User-Agent-Type': 'cli',
+                    'Codefresh-User-Agent-Version': '1.0.0',
                 },
             }));
         });
