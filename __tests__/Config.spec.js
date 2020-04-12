@@ -447,19 +447,19 @@ describe('Config', () => {
     });
 
     describe('#load()', () => {
-        it('should load from provided first', async () => {
+        it('should load from provided in case api key was provided', async () => {
             Config._fromProvided = jest.fn(() => ({}));
             Config._fromEnv = jest.fn(() => ({}));
             Config.fromCodefreshConfig = jest.fn(() => ({}));
 
-            await Config.load();
+            await Config.load({ apiKey: 'key' });
 
             expect(Config._fromProvided).toBeCalled();
             expect(Config._fromEnv).not.toBeCalled();
             expect(Config.fromCodefreshConfig).not.toBeCalled();
         });
 
-        it('should load from env when could not load from provided', async () => {
+        it('should load from env in case nothing was provided', async () => {
             Config._fromProvided = jest.fn(() => {
                 throw new Error();
             });
@@ -468,12 +468,12 @@ describe('Config', () => {
 
             await Config.load();
 
-            expect(Config._fromProvided).toBeCalled();
+            expect(Config._fromProvided).not.toBeCalled();
             expect(Config._fromEnv).toBeCalled();
             expect(Config.fromCodefreshConfig).not.toBeCalled();
         });
 
-        it('should load from file when could not load from env', async () => {
+        it('should load from config in case context was passed', async () => {
             Config._fromProvided = jest.fn(() => {
                 throw new Error();
             });
@@ -482,14 +482,14 @@ describe('Config', () => {
             });
             Config.fromCodefreshConfig = jest.fn(() => ({}));
 
-            await Config.load();
+            await Config.load({ context: 'name' });
 
-            expect(Config._fromProvided).toBeCalled();
-            expect(Config._fromEnv).toBeCalled();
+            expect(Config._fromProvided).not.toBeCalled();
+            expect(Config._fromEnv).not.toBeCalled();
             expect(Config.fromCodefreshConfig).toBeCalled();
         });
 
-        it('should throw when could not load from file', async () => {
+        it('should throw when could not load from context', async () => {
             Config._fromProvided = jest.fn(() => {
                 throw new Error();
             });
@@ -500,10 +500,10 @@ describe('Config', () => {
                 throw new Error();
             });
 
-            await expect(Config.load()).rejects.toThrow(CFError);
+            await expect(Config.load({ context: 'name' })).rejects.toThrow(CFError);
 
-            expect(Config._fromProvided).toBeCalled();
-            expect(Config._fromEnv).toBeCalled();
+            expect(Config._fromProvided).not.toBeCalled();
+            expect(Config._fromEnv).not.toBeCalled();
             expect(Config.fromCodefreshConfig).toBeCalled();
         });
     });
