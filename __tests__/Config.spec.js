@@ -452,7 +452,7 @@ describe('Config', () => {
             Config._fromEnv = jest.fn(() => ({}));
             Config.fromCodefreshConfig = jest.fn(() => ({}));
 
-            await Config.load({apiKey: 'key'});
+            await Config.load({ apiKey: 'key' });
 
             expect(Config._fromProvided).toBeCalled();
             expect(Config._fromEnv).not.toBeCalled();
@@ -482,7 +482,7 @@ describe('Config', () => {
             });
             Config.fromCodefreshConfig = jest.fn(() => ({}));
 
-            await Config.load({context: 'name'});
+            await Config.load({ context: 'name' });
 
             expect(Config._fromProvided).not.toBeCalled();
             expect(Config._fromEnv).not.toBeCalled();
@@ -500,7 +500,7 @@ describe('Config', () => {
                 throw new Error();
             });
 
-            await expect(Config.load({context: 'name'})).rejects.toThrow(CFError);
+            await expect(Config.load({ context: 'name' })).rejects.toThrow(CFError);
 
             expect(Config._fromProvided).not.toBeCalled();
             expect(Config._fromEnv).not.toBeCalled();
