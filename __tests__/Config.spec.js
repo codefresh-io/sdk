@@ -473,6 +473,44 @@ describe('Config', () => {
             expect(Config.fromCodefreshConfig).not.toBeCalled();
         });
 
+        it('should load from config in case nothing was provided and env variable does not exist', async () => {
+            Config._fromProvided = jest.fn(() => {
+                throw new Error();
+            });
+            Config._fromEnv = jest.fn(() => {
+                throw new Error(`Config: process.env.${defaults.CF_TOKEN_ENV} is not provided`);
+            });
+            Config.fromCodefreshConfig = jest.fn(() => ({}));
+
+            await Config.load();
+
+            expect(Config._fromProvided).not.toBeCalled();
+            expect(Config._fromEnv).toBeCalled();
+            expect(Config.fromCodefreshConfig).toBeCalled();
+        });
+
+        it('should not load from config in case nothing was provided and env variable returns error different than variable does not exist', async () => { // eslint-disable-line max-len
+            Config._fromProvided = jest.fn(() => {
+                throw new Error();
+            });
+            Config._fromEnv = jest.fn(() => {
+                throw new Error('some error');
+            });
+            Config.fromCodefreshConfig = jest.fn(() => ({}));
+
+            try {
+                await Config.load();
+            } catch (err) {
+                expect(err.toString()).toEqual('Error: Could not load config; caused by Error: some error');
+                expect(Config._fromProvided).not.toBeCalled();
+                expect(Config._fromEnv).toBeCalled();
+                expect(Config.fromCodefreshConfig).not.toBeCalled();
+                return;
+            }
+
+            throw new Error('should have failed');
+        });
+
         it('should load from config in case context was passed', async () => {
             Config._fromProvided = jest.fn(() => {
                 throw new Error();
