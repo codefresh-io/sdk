@@ -1,6 +1,6 @@
 {
   "name": "codefresh-sdk",
-  "version": "1.9.11",
+  "version": "1.9.12",
   "description": "Codefresh_api_swagger_3_0_specification",
   "main": "index.js",
   "author": {
@@ -16,6 +16,7 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
+    "@codefresh-io/cf-receiver": "0.0.1-alpha19",
     "bluebird": "^3.5.3",
     "cf-errors": "^0.1.12",
     "compare-versions": "^3.4.0",
@@ -34,6 +35,7 @@
     "request-promise": "^4.2.2",
     "requestretry": "^3.1.0",
     "swagger-client": "^3.8.22",
+    "uniqid": "^5.2.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
