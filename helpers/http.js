@@ -42,7 +42,7 @@ const Http = (options) => {
         headers = {},
     } = options || {};
 
-    if (!_.get(headers, 'Codefresh-Agent-Type') || !_.get(headers, 'Codefresh-Agent-Version')) {
+    if (!_.get(headers, 'Codefresh-User-Agent-Type') || !_.get(headers, 'Codefresh-User-Agent-Version')) {
         _.set(headers, 'User-Agent', `codefresh-js-sdk-v${version}`);
         _.set(headers, 'Codefresh-User-Agent-Type', 'js-sdk');
         _.set(headers, 'Codefresh-User-Agent-Version', version);
