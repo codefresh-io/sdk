@@ -168,7 +168,7 @@ describe('helpers', () => {
             }));
         });
 
-        it('should add codefresh-agent-type header and codefresh-agent-version if they are missing', () => {
+        it('should add codefresh-user-agent-type header and codefresh-user-agent-version if they are missing', () => {
             const defaultConfig = {
                 timeout: defaults.TIMEOUT,
                 maxAttempts: defaults.MAX_RETRIES,
@@ -186,7 +186,7 @@ describe('helpers', () => {
             }));
         });
 
-        it('should add codefresh-agent-type header and codefresh-agent-version if they are missing', () => {
+        it('should add codefresh-user-agent-type header and codefresh-user-agent-version if they are missing', () => {
             const defaultConfig = {
                 timeout: defaults.TIMEOUT,
                 maxAttempts: defaults.MAX_RETRIES,
