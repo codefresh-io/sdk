@@ -62,7 +62,7 @@ steps:
     type: npm-publish
     arguments:
       NPM_TOKEN: '${{NPM_TOKEN}}'
-      DIR: ./js-sdk
+      DIR: '${{CF_REPO_NAME}}'
     when:
       branch:
         only: [ master ]
