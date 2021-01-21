@@ -18,7 +18,7 @@
     "@codefresh-io/cf-receiver": "0.0.1-alpha19",
     "bluebird": "^3.5.3",
     "cf-errors": "^0.1.15",
-    "compare-versions": "^3.4.0",
+    "compare-versions": "^3.6.0",
     "debug": "^4.1.1",
     "decompress": "^4.2.0",
     "decompress-targz": "^4.1.1",
