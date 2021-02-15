@@ -6,6 +6,7 @@ const mockedSubscribe = jest.fn();
 jest.mock('@codefresh-io/cf-receiver', () => ({
     CfReceiverService: class CfReceiverService {
         constructor() {
+            return null;
         }
 
         watch() {
