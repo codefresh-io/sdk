@@ -20,7 +20,7 @@
     "cf-errors": "^0.1.15",
     "compare-versions": "^3.4.0",
     "debug": "^4.1.1",
-    "decompress": "^4.2.0",
+    "decompress": "^4.2.1",
     "decompress-targz": "^4.1.1",
     "decompress-unzip": "^4.0.1",
     "firebase": "git+https://github.com/codefresh-io/firebase.git#80b2ed883ff281cd67b53bd0f6a0bbd6f330fed5",
