@@ -27,7 +27,7 @@
     "fs-extra": "^7.0.1",
     "js-yaml": "^3.13.1",
     "jsonwebtoken": "^8.4.0",
-    "lodash": "4.17.21",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "recursive-readdir": "^2.2.2",
     "request": "2.88.2",
