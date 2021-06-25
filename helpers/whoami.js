@@ -25,7 +25,7 @@ const getExecutionContext = async (context, options = {}) => {
     const user = await http(_.merge(userOptions, context.prepareHttpOptions()));
     debug(`context "${context.name}" successfully loaded`);
     return user;
-}
+};
 
 /**
  * This method is used only inside cli for command `codefresh auth get-contexts`
