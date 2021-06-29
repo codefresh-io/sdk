@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 const fs = require('fs');
 const fse = require('fs-extra');
 const yaml = require('js-yaml');
@@ -8,9 +9,15 @@ const jwt = require('jsonwebtoken');
 
 const { ConfigManager } = require('../lib/auth');
 const defaults = require('../lib/defaults');
-const { JWTContext, APIKeyContext } = require('../lib/auth/contexts');
+// eslint-disable-next-line prefer-const
+let { JWTContext, APIKeyContext } = require('../lib/auth/contexts');
 
 const manager = new ConfigManager();
+
+jest.mock('../helpers/whoami', () => ({
+    getUser: jest.fn(),
+    getExecutionContext: jest.fn(),
+}));
 
 jest.mock('fs', () => {
     const mock = {};
@@ -265,6 +272,25 @@ describe('ConfigManager', () => {
 
             expect(APIKeyContext.createFromToken).toBeCalledWith(token, url);
             expect(validateContext).toBeCalled();
+        });
+
+        it('should do a fallback in case there was a failure during user validation', async () => {
+            jest.resetModuleRegistry();
+            const token = 'token';
+            const url = 'url';
+
+            const _whoami = require('../helpers/whoami');
+
+            _whoami.getUser.mockRejectedValueOnce(new Error());
+            _whoami.getExecutionContext.mockResolvedValueOnce({});
+
+            // eslint-disable-next-line prefer-destructuring
+            APIKeyContext.createFromToken = require('../lib/auth/contexts').APIKeyContext.createFromToken;
+
+            await manager.createContext({ apiKey: token, url });
+
+            expect(_whoami.getUser).toBeCalledTimes(1);
+            expect(_whoami.getExecutionContext).toBeCalledTimes(1);
         });
 
         it('should set context onPrem when account has role "Admin"', async () => {

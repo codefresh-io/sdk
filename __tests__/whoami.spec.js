@@ -1,4 +1,4 @@
-const { getCurrentAccount, getUser } = require('../helpers/whoami');
+const { getCurrentAccount, getUser, getExecutionContext } = require('../helpers/whoami');
 const { APIKeyContext } = require('../lib/auth/contexts');
 const { Http } = require('../helpers/http');
 
@@ -105,6 +105,75 @@ describe('whoami', () => {
             Http.__setResponse(() => response);
 
             const accountInfo = await getUser(context, true);
+
+            expect(accountInfo).toEqual(response);
+            expect(context.prepareHttpOptions).toBeCalled();
+        });
+    });
+
+    describe('getExecutionContext', () => {
+        it('should return full account info ', async () => {
+            const context = new APIKeyContext({
+                name: 'test-context',
+                url: 'http://test',
+                token: 'test-token',
+            });
+
+            const response = { test: 'test' };
+            Http.__setResponse(() => response);
+
+            const accountInfo = await getExecutionContext(context);
+            expect(accountInfo).toEqual(response);
+        });
+
+        it('should be able to be called with options', async () => {
+            const testToken = 'test-token';
+            const testUrl = 'http://test';
+            const timeout = 1000;
+            const context = new APIKeyContext({
+                name: 'test-context',
+                url: testUrl,
+                token: testToken,
+            });
+
+            const response = { test: 'test' };
+            Http.__setResponse(() => response);
+            Http.__setValidateParams((userOptions) => {
+                expect(userOptions)
+                    .toEqual(expect.objectContaining({
+                        timeout,
+                        method: 'GET',
+                        url: `${testUrl}/api/execution-contexts/current`,
+                        headers: { Authorization: testToken },
+                    }));
+            });
+
+            await getExecutionContext(context, { timeout });
+        });
+
+        it('should merge context http options into request options', async () => {
+            const testToken = 'test-token';
+            const testUrl = 'http://test';
+            const context = new APIKeyContext({
+                name: 'test-context',
+                url: testUrl,
+                token: testToken,
+            });
+            jest.spyOn(context, 'prepareHttpOptions');
+
+            Http.__setValidateParams((userOptions) => {
+                expect(userOptions)
+                    .toEqual(expect.objectContaining({
+                        method: 'GET',
+                        url: `${testUrl}/api/execution-contexts/current`,
+                        headers: { Authorization: testToken },
+                    }));
+            });
+
+            const response = { test: 'test' };
+            Http.__setResponse(() => response);
+
+            const accountInfo = await getExecutionContext(context, true);
 
             expect(accountInfo).toEqual(response);
             expect(context.prepareHttpOptions).toBeCalled();

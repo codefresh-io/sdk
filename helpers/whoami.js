@@ -16,6 +16,17 @@ const getUser = async (context, options = {}) => {
     return user;
 };
 
+const getExecutionContext = async (context, options = {}) => {
+    debug(`loading context -- ${context}`);
+    const userOptions = _.defaultsDeep({
+        url: `${context.url}/api/execution-contexts/current`,
+        method: 'GET',
+    }, options);
+    const executionContext = await http(_.merge(userOptions, context.prepareHttpOptions()));
+    debug(`context "${context.name}" successfully loaded`);
+    return executionContext;
+};
+
 /**
  * This method is used only inside cli for command `codefresh auth get-contexts`
  * */
@@ -38,4 +49,4 @@ const getCurrentAccount = async (context) => {
     return accountInfo;
 };
 
-module.exports = { getUser, getCurrentAccount };
+module.exports = { getUser, getExecutionContext, getCurrentAccount };
