@@ -1,4 +1,4 @@
-const { getCurrentAccount, getUser } = require('../helpers/whoami');
+const { getCurrentAccount, getUser, getExecutionContext } = require('../helpers/whoami');
 const { APIKeyContext } = require('../lib/auth/contexts');
 const { Http } = require('../helpers/http');
 
@@ -122,7 +122,7 @@ describe('whoami', () => {
             const response = { test: 'test' };
             Http.__setResponse(() => response);
 
-            const accountInfo = await getUser(context);
+            const accountInfo = await getExecutionContext(context);
             expect(accountInfo).toEqual(response);
         });
 
@@ -143,12 +143,12 @@ describe('whoami', () => {
                     .toEqual(expect.objectContaining({
                         timeout,
                         method: 'GET',
-                        url: `${testUrl}/api/user`,
+                        url: `${testUrl}/api/execution-contexts/current`,
                         headers: { Authorization: testToken },
                     }));
             });
 
-            await getUser(context, { timeout });
+            await getExecutionContext(context, { timeout });
         });
 
         it('should merge context http options into request options', async () => {
@@ -165,7 +165,7 @@ describe('whoami', () => {
                 expect(userOptions)
                     .toEqual(expect.objectContaining({
                         method: 'GET',
-                        url: `${testUrl}/api/user`,
+                        url: `${testUrl}/api/execution-contexts/current`,
                         headers: { Authorization: testToken },
                     }));
             });
@@ -173,7 +173,7 @@ describe('whoami', () => {
             const response = { test: 'test' };
             Http.__setResponse(() => response);
 
-            const accountInfo = await getUser(context, true);
+            const accountInfo = await getExecutionContext(context, true);
 
             expect(accountInfo).toEqual(response);
             expect(context.prepareHttpOptions).toBeCalled();
