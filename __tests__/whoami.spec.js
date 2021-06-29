@@ -111,6 +111,75 @@ describe('whoami', () => {
         });
     });
 
+    describe('getExecutionContext', () => {
+        it('should return full account info ', async () => {
+            const context = new APIKeyContext({
+                name: 'test-context',
+                url: 'http://test',
+                token: 'test-token',
+            });
+
+            const response = { test: 'test' };
+            Http.__setResponse(() => response);
+
+            const accountInfo = await getUser(context);
+            expect(accountInfo).toEqual(response);
+        });
+
+        it('should be able to be called with options', async () => {
+            const testToken = 'test-token';
+            const testUrl = 'http://test';
+            const timeout = 1000;
+            const context = new APIKeyContext({
+                name: 'test-context',
+                url: testUrl,
+                token: testToken,
+            });
+
+            const response = { test: 'test' };
+            Http.__setResponse(() => response);
+            Http.__setValidateParams((userOptions) => {
+                expect(userOptions)
+                    .toEqual(expect.objectContaining({
+                        timeout,
+                        method: 'GET',
+                        url: `${testUrl}/api/user`,
+                        headers: { Authorization: testToken },
+                    }));
+            });
+
+            await getUser(context, { timeout });
+        });
+
+        it('should merge context http options into request options', async () => {
+            const testToken = 'test-token';
+            const testUrl = 'http://test';
+            const context = new APIKeyContext({
+                name: 'test-context',
+                url: testUrl,
+                token: testToken,
+            });
+            jest.spyOn(context, 'prepareHttpOptions');
+
+            Http.__setValidateParams((userOptions) => {
+                expect(userOptions)
+                    .toEqual(expect.objectContaining({
+                        method: 'GET',
+                        url: `${testUrl}/api/user`,
+                        headers: { Authorization: testToken },
+                    }));
+            });
+
+            const response = { test: 'test' };
+            Http.__setResponse(() => response);
+
+            const accountInfo = await getUser(context, true);
+
+            expect(accountInfo).toEqual(response);
+            expect(context.prepareHttpOptions).toBeCalled();
+        });
+    });
+
     describe('getCurrentAccount', () => {
         it('should return active account information in case context is valid', async () => {
             const testToken = 'test-token';
