@@ -22,9 +22,9 @@ const getExecutionContext = async (context, options = {}) => {
         url: `${context.url}/api/execution-contexts/current`,
         method: 'GET',
     }, options);
-    const user = await http(_.merge(userOptions, context.prepareHttpOptions()));
+    const executionContext = await http(_.merge(userOptions, context.prepareHttpOptions()));
     debug(`context "${context.name}" successfully loaded`);
-    return user;
+    return executionContext;
 };
 
 /**
